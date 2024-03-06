@@ -161,7 +161,7 @@ exports.PostResetPassword = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
         user.password = hashedPassword;
         await user.save();
-        res.status(200).json({ status: 'success', message: 'New Password added successfully' });
+        res.status(200).json({ status: 'success', message: 'New Password added successfully!' });
     } catch (err) {
         res.status(500).json({
             status: 'error',
