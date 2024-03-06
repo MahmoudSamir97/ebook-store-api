@@ -1,7 +1,10 @@
-const router = express.Router();
+const express = require('express');
+const upload = require('../middleware/multer');
+const { addBook, getAllBooks, deleteBook } = require('../controllers/bookControllers');
+const bookRouter = express.Router();
 
-router.post('/add', upload.single('bookImage'), addBook);
-router.get('/AllBook', getAllBooks);
-router.delete('/:bookId', deleteBook);
+bookRouter.post('/add', upload.single('bookImage'), addBook);
+bookRouter.get('/AllBook', getAllBooks);
+bookRouter.delete('/:bookId', deleteBook);
 
-module.exports = router;
+module.exports = bookRouter;
