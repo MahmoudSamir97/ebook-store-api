@@ -1,13 +1,13 @@
 const bookModel = require('../models/Book');
-const { cloudinaryUploadImage ,cloudinaryRemoveImage } = require('../services/uploadImage');
+const { cloudinaryUploadImage, cloudinaryRemoveImage } = require('../services/uploadImage');
 // const path = require('path');
 exports.addBook = async (req, res) => {
     try {
         const { bookTitle, bookPrice, Author, category, publisherName } = req.body;
 
         // Upload image to Cloudinary
-        if(!req.file){
-            return res.status(400).json({status:'error', messagev:'Must add image'});
+        if (!req.file) {
+            return res.status(400).json({ status: 'error', messagev: 'Must add image' });
         }
         const imageUrl = await cloudinaryUploadImage(req.file.path);
 
@@ -19,7 +19,7 @@ exports.addBook = async (req, res) => {
             bookImage: imageUrl.secure_url,
             category,
 
-            publisherName
+            publisherName,
         });
 
         // Save the new book to the database
@@ -32,7 +32,6 @@ exports.addBook = async (req, res) => {
     }
 };
 
-
 exports.getAllBooks = async (req, res) => {
     try {
         const books = await bookModel.find();
@@ -41,7 +40,6 @@ exports.getAllBooks = async (req, res) => {
         res.status(500).json({ status: 'error', message: error.message, data: null });
     }
 };
-
 
 exports.deleteBook = async (req, res) => {
     try {
