@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
         unique: true,
         validate: [validator.isEmail, 'Please Provide a valid email address!'],
     },
+    image: {
+        public_id: String,
+        url: String,
+    },
     password: {
         type: String,
         required: [true, 'Please Provide your password!'],
@@ -49,10 +53,16 @@ const userSchema = new mongoose.Schema({
     isDeleted: {
         type: Boolean,
         default: false,
+        select: false,
     },
     passwordResetString: String,
     passwordResetExpires: Date,
 });
+// PRE HOOK, NOT RETRIEVE USERS WITH DELETED ACCOUNT
+userSchema.pre(/^find/, function () {
+    this.find({ isDeleted: false });
+});
+// MONGOOSE SCHEMA METHODS FIELD
 userSchema.methods.creatResetRandomString = function () {
     const resetString = crypto.randomBytes(32).toString('hex');
     this.passwordResetString = crypto.createHash('sha256').update(resetString).digest('hex');
