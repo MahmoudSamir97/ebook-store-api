@@ -1,11 +1,14 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
+const dataurl = require('dataurl');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const sendeEmail = require('../services/sendEmail');
 const createToken = require('../utils/createToken');
 const verifyTemplate = require('../utils/verifyTemplate');
 const resetTemplate = require('../utils/resetTemplate');
+const { createandSendToken } = require('../utils/createandSendToken');
+const { cloudinaryUploadImage } = require('../services/uploadImage');
 
 exports.signup = async (req, res) => {
     try {
@@ -27,10 +30,7 @@ exports.signup = async (req, res) => {
         sendeEmail(verifyTemplate, email, verifyURL, userName);
         res.status(201).json({
             status: 'success',
-            message: 'verification link have been sent to your email',
-            data: {
-                newUser,
-            },
+            message: 'verification link has been sent to your email',
         });
     } catch (err) {
         res.status(500).json({
@@ -85,15 +85,18 @@ exports.login = async (req, res) => {
                 message: 'You entered wrong password!',
             });
         // 5-) send token to user if logged successfully
-        const token = jwt.sign({ id: registeredUser._id }, process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_EXPIRES_IN,
-        });
-        res.status(201).json({
+        const token = createToken(registeredUser._id, process.env.JWT_EXPIRES_IN);
+        const cookieOptions = {
+            expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+            secure: false,
+        };
+        // FOR PRODUCTION
+        res.cookie('token', token, cookieOptions);
+        return res.status(200).json({
             status: 'success',
             token,
-            data: {
-                registeredUser,
-            },
+            message: 'You entered wrong password!',
         });
     } catch (err) {
         res.status(500).json({
@@ -137,14 +140,13 @@ exports.forgetPassword = async (req, res) => {
 };
 exports.getResetPassword = async (req, res) => {
     try {
-        const { resetLink } = req.params;
-        const hashedLink = crypto.createHash('sha256').update(resetLink).digest('hex');
-        const foundedUser = User.findOne({
+        const hashedLink = crypto.createHash('sha256').update(req.params.resetlink).digest('hex');
+        const foundedUser = await User.findOne({
             passwordResetString: hashedLink,
             passwordResetExpires: { $gt: Date.now() },
         });
         if (!foundedUser) return res.status(400).json({ message: 'Reset link is invalid or has been expired' });
-        res.status(200).json({ status: 'success', message: 'reset your password safely' });
+        res.status(200).json({ status: 'success', message: 'Enter your new password', data: { foundedUser } });
     } catch (err) {
         res.status(500).json({
             status: 'error',
@@ -157,11 +159,84 @@ exports.PostResetPassword = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) return res.staus(404).json({ status: 'fail', message: 'User with given email not exist ' });
-        if (!password) return res.staus(404).json({ status: 'fail', message: 'Please provide new password' });
+        if (!password) return res.staus(404).json({ status: 'fail', message: 'Please provide a new password' });
         const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
         user.password = hashedPassword;
         await user.save();
         res.status(200).json({ status: 'success', message: 'New Password added successfully!' });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
+        });
+    }
+};
+
+exports.updatePassword = async (req, res) => {
+    try {
+        // 1-FIND USER
+        const user = await User.findById(req.user.id).select('+password');
+        // 2-CHECK IF PROVIDED PASSWORD CORRECT
+        const passwordMatch = bcrypt.compareSync(req.body.oldPassword, user.password);
+        if (!passwordMatch) return res.status(404).json({ status: 'fail', message: 'Old password is not correct!' });
+        // 3-UPDATE PASSWORD
+        const hashedPassword = await bcrypt.hash(req.body.newPassword, Number(process.env.BCRYPT_SALT));
+        user.password = hashedPassword;
+        await user.save();
+        // 4-CREATE AND SEND TOKEN
+        createandSendToken(user, user._id, process.env.JWT_EXPIRES_IN, 200, res);
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
+        });
+    }
+};
+exports.updateUserData = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (req.file) {
+            const dataUrlString = dataurl.format({
+                data: req.file.buffer,
+                mimetype: req.file.mimetype,
+            });
+            const result = await cloudinaryUploadImage(dataUrlString, 'Portfolio');
+            user.image.url = result.secure_url;
+            user.image.public_id = result.public_id;
+            await user.save();
+        }
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { ...req.body },
+            { runValidators: true, new: true }
+        );
+        res.status(200).json({ status: 'success', message: 'data updated successfully', data: { updatedUser } });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
+        });
+    }
+};
+
+exports.deleteUser = async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user._id, { isDeleted: true });
+        res.status(200).json({ status: 'success', message: 'User deleted successfully!' });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
+        });
+    }
+};
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find();
+        res.status(200).json({
+            status: 'success',
+            data: { users },
+        });
     } catch (err) {
         res.status(500).json({
             status: 'error',
