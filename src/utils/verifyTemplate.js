@@ -17,7 +17,7 @@ const verifyTemplate = (link, userName) => {
                          <table border="0" cellpadding="0" cellspacing="0" width="480" >
                              <tr>
                                  <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
-                                     <div style="display: block; font-family: Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0">ShopEasy website </div>
+                                     <div style="display: block; font-family: Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0">e-book store 📙 </div>
                                  </td>
                              </tr>
                          </table>
@@ -45,7 +45,7 @@ const verifyTemplate = (link, userName) => {
                           <P>
                          Hey ${userName},
 
-                         You’re almost ready to start enjoying our awesome e-commerce website.
+                         You’re almost ready to start enjoying our e-book store .
 
                          Simply click the big colored button below to verify your email address.
 

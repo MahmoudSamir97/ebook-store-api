@@ -137,14 +137,13 @@ exports.forgetPassword = async (req, res) => {
 };
 exports.getResetPassword = async (req, res) => {
     try {
-        const { resetLink } = req.params;
-        const hashedLink = crypto.createHash('sha256').update(resetLink).digest('hex');
-        const foundedUser = User.findOne({
+        const hashedLink = crypto.createHash('sha256').update(req.params.resetlink).digest('hex');
+        const foundedUser = await User.findOne({
             passwordResetString: hashedLink,
             passwordResetExpires: { $gt: Date.now() },
         });
         if (!foundedUser) return res.status(400).json({ message: 'Reset link is invalid or has been expired' });
-        res.status(200).json({ status: 'success', message: 'reset your password safely' });
+        res.status(200).json({ status: 'success', message: 'Enter your new password', data: { foundedUser } });
     } catch (err) {
         res.status(500).json({
             status: 'error',
@@ -157,7 +156,7 @@ exports.PostResetPassword = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) return res.staus(404).json({ status: 'fail', message: 'User with given email not exist ' });
-        if (!password) return res.staus(404).json({ status: 'fail', message: 'Please provide new password' });
+        if (!password) return res.staus(404).json({ status: 'fail', message: 'Please provide a new password' });
         const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
         user.password = hashedPassword;
         await user.save();

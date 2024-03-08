@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.creatResetRandomString = function () {
     const resetString = crypto.randomBytes(32).toString('hex');
     this.passwordResetString = crypto.createHash('sha256').update(resetString).digest('hex');
-    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    this.passwordResetExpires = Date.now() + 2 * 60 * 1000;
     return resetString;
 };
 
