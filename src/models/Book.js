@@ -16,16 +16,16 @@ const bookSchema = new mongoose.Schema(
         },
         Author: {
             type: String,
-            required: [true, 'Author Name is required'],
+           required: [true, 'Author Name is required'],
             trim: true,
         },
-        bookImage: {
-            type: String,
-            required: true,
+        bookDescription:{
+            type:String,
+            trim:true
         },
         bookPdf: {
-            type: String,
-            // required: true
+            secure_url:String,
+            public_id: String,
         },
         category: {
             type: mongoose.Schema.Types.ObjectId,
