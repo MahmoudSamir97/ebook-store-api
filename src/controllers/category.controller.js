@@ -1,6 +1,7 @@
 const categoryModel = require('../models/category.model');
 const { cloudinaryUploadImage } = require('../services/uploadImage');
 const { cloudinaryRemoveImage } = require('../services/uploadImage');
+const dataurl = require('dataurl');
 
 exports.addCategory = async (req, res) => {
     try {
@@ -19,7 +20,13 @@ exports.addCategory = async (req, res) => {
             return res.status(400).json({ status: 'ERROR', message: 'Image must be provided' });
         }
 
-        const result = await cloudinaryUploadImage(req.file.path);
+        const dataUrlString = dataurl.format({
+            data: req.file.buffer,
+            mimetype: req.file.mimetype,
+        });
+
+        const result = await cloudinaryUploadImage(dataUrlString, 'category');
+
 
         const newCategory = new categoryModel({
             categoryName: req.body.categoryName,
