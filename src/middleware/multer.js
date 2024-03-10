@@ -4,3 +4,4 @@ const fileStorageEngine = multer.memoryStorage();
 const upload = multer({ storage: fileStorageEngine, limits: { fileSize: maxSize } });
 
 module.exports = upload;
+

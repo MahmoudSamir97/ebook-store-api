@@ -18,7 +18,6 @@ exports.addBook = async (req, res) => {
             Author,
             bookImage: imageUrl.secure_url,
             category,
-
             publisherName,
         });
 
