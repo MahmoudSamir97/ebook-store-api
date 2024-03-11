@@ -1,6 +1,7 @@
 const bookModel = require('../models/Book');
 const dataurl = require('dataurl');
 const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudinary');
+const categoryModel = require('../models/category.model');
 exports.addBook = async (req, res) => {
     try {
         const { bookTitle, bookPrice, Author, category, publisherName } = req.body;
@@ -20,7 +21,6 @@ exports.addBook = async (req, res) => {
         const uploadedBookImage = await uploadToCloudinary(bookImageDataUrlString, 'book image');
         const uploadedBookPdf = await uploadToCloudinary(bookPdfDataUrlString, 'pdf');
 
-        const result = await cloudinaryUploadImage(dataUrlString, 'book');
         const newBook = new bookModel({
             bookTitle,
             bookPrice,
@@ -79,8 +79,12 @@ exports.updateBook = async (req, res) => {
 
         // Check if a new image file is provided
         if (req.file) {
+            const dataUrlString = dataurl.format({
+                data: req.file.buffer,
+                mimetype: req.file.mimetype,
+            });
             // Upload image to cloudinary
-            const result = await cloudinaryUploadImage(req.file.path);
+            const result = await uploadToCloudinary(dataUrlString, 'book image');
             updateFields.bookPdf = result.secure_url;
         }
 
