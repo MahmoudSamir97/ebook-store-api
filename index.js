@@ -32,7 +32,9 @@ app.use(hpp());
 app.use('/user', userRouter);
 app.use('/book', bookRouter);
 app.use('/category', categoryRouter);
-app.use('/cart', cartRouter);
-app.use('/copoun', couponRouter);
-app.use('/wishlist', wishlistRouter);
+app.use('/cart',cartRouter);
+app.use('/copoun',couponRouter);
+app.use('/wishlist',wishlistRouter);
+
+
 module.exports = app;

@@ -1,35 +1,42 @@
 const bookModel = require('../models/Book');
-const categoryModel = require('../models/category.model');
 const dataurl = require('dataurl');
-const { cloudinaryUploadImage, cloudinaryRemoveImage } = require('../services/uploadImage');
+const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudinary');
+const categoryModel = require('../models/category.model');
 exports.addBook = async (req, res) => {
     try {
-        const { bookTitle, bookPrice, Author, category, publisherName ,bookPdf,bookDescription} = req.body;
-        if (!req.file) {
-            return res.status(400).json({ status: 'error', messagev: 'Must add image' });
+        const { bookTitle, bookPrice, Author, category, publisherName } = req.body;
+        // Upload image to Cloudinary
+        if (!req.files) {
+            return res.status(400).json({ status: 'error', message: 'Must add image' });
         }
-        const dataUrlString = dataurl.format({
-            data: req.file.buffer,
-            mimetype: req.file.mimetype,
+        const bookPdfDataUrlString = dataurl.format({
+            data: req.files.bookPdf[0].buffer,
+            mimetype: req.files.bookPdf[0].mimetype,
         });
 
-        const result = await cloudinaryUploadImage(dataUrlString,'book');
+        const bookImageDataUrlString = dataurl.format({
+            data: req.files.bookImage[0].buffer,
+            mimetype: req.files.bookImage[0].mimetype,
+        });
+        const uploadedBookImage = await uploadToCloudinary(bookImageDataUrlString, 'book image');
+        const uploadedBookPdf = await uploadToCloudinary(bookPdfDataUrlString, 'pdf');
+
         const newBook = new bookModel({
             bookTitle,
             bookPrice,
             Author,
-            bookDescription,
-           ['bookPdf.secure_url']: result.secure_url,
-            // category:category._id,
-            category: req.body.category,
+            ['bookImage.url']: uploadedBookImage.secure_url,
+            ['bookImage.public_id']: uploadedBookImage.public_id,
+            ['bookPdf.url']: uploadedBookPdf.secure_url,
+            ['bookPdf.public_id']: uploadedBookPdf.public_id,
+            category,
             publisherName,
         });
         const savedBook = await newBook.save();
-
-        res.status(201).json({status:"sucess" ,savedBook});
+        res.status(201).json(savedBook);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error'});
+        res.status(500).json({ message: 'Server error' });
     }
 };
 exports.deleteBook = async (req, res) => {
@@ -43,7 +50,7 @@ exports.deleteBook = async (req, res) => {
         }
 
         // Remove the book image from Cloudinary
-        const deleteResult = await cloudinaryRemoveImage(book.bookImage);
+        const deleteResult = await removeFromCloudinary(book.bookImage);
 
         console.log('Cloudinary delete result:', deleteResult);
 
@@ -57,7 +64,7 @@ exports.deleteBook = async (req, res) => {
 exports.updateBook = async (req, res) => {
     try {
         const bookId = req.params.bookId; // Assuming you have the book ID in the request parameters
-        const { bookTitle, bookPrice, Author ,bookDescription} = req.body; // Extract book details from request body
+        const { bookTitle, bookPrice, Author, bookDescription } = req.body; // Extract book details from request body
 
         // Find the book by ID
         const book = await bookModel.findById(bookId);
@@ -68,12 +75,16 @@ exports.updateBook = async (req, res) => {
         }
 
         // Prepare update fields
-        let updateFields = { bookTitle, bookPrice, Author ,bookDescription };
+        let updateFields = { bookTitle, bookPrice, Author, bookDescription };
 
         // Check if a new image file is provided
         if (req.file) {
+            const dataUrlString = dataurl.format({
+                data: req.file.buffer,
+                mimetype: req.file.mimetype,
+            });
             // Upload image to cloudinary
-            const result = await cloudinaryUploadImage(req.file.path);
+            const result = await uploadToCloudinary(dataUrlString, 'book image');
             updateFields.bookPdf = result.secure_url;
         }
 

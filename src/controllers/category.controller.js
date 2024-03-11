@@ -1,6 +1,5 @@
 const categoryModel = require('../models/category.model');
-const { cloudinaryUploadImage } = require('../services/uploadImage');
-const { cloudinaryRemoveImage } = require('../services/uploadImage');
+const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudinary');
 const dataurl = require('dataurl');
 
 
@@ -26,8 +25,7 @@ exports.addCategory = async (req, res) => {
             mimetype: req.file.mimetype,
         });
 
-        const result = await cloudinaryUploadImage(dataUrlString, 'category');
-
+        const result = await uploadToCloudinary(dataUrlString, 'category');
 
         const newCategory = new categoryModel({
             categoryName: req.body.categoryName,
@@ -57,13 +55,7 @@ exports.updateCategory = async (req, res) => {
 
         // Check if a new image file is provided
         if (req.file) {
-            const dataUrlString = dataurl.format({
-                data: req.file.buffer,
-                mimetype: req.file.mimetype,
-            });
-
-            const result = await cloudinaryUploadImage(dataUrlString, 'category');
-
+            const result = await uploadToCloudinary(req.file.path);
             updateFields.categoryImage = result.secure_url;
         }
 
@@ -117,7 +109,7 @@ exports.deleteCategory = async (req, res) => {
         }
 
         // Remove the category image from Cloudinary
-        const deleteResult = await cloudinaryRemoveImage(category.categoryImage);
+        const deleteResult = await removeFromCloudinary(category.categoryImage);
 
         console.log('Cloudinary delete result:', deleteResult);
 

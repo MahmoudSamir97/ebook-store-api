@@ -2,10 +2,9 @@ const { Schema, Types, model } = require('mongoose');
 
 const CartSchema = new Schema(
     {
-        orderBy:{
+        orderBy: {
             type: Types.ObjectId,
             ref: 'User',
-
         },
         cartItems: [
             {
@@ -13,11 +12,11 @@ const CartSchema = new Schema(
                     type: Types.ObjectId,
                     ref: 'Book',
                 },
-                quantity:{
-                    type:Number,
-                    default:1
-                }
-            }
+                quantity: {
+                    type: Number,
+                    default: 1,
+                },
+            },
         ],
         totalPrice: Number,
         totalQuantity:Number,
@@ -26,6 +25,8 @@ const CartSchema = new Schema(
             default:0
 
         }
+
+
     },
     {
         timestamps: true,
