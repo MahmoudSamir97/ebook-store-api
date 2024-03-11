@@ -1,29 +1,40 @@
 const bookModel = require('../models/Book');
-const { cloudinaryUploadImage, cloudinaryRemoveImage } = require('../services/uploadImage');
-// const path = require('path');
+const dataurl = require('dataurl');
+const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudinary');
 exports.addBook = async (req, res) => {
     try {
         const { bookTitle, bookPrice, Author, category, publisherName } = req.body;
-
         // Upload image to Cloudinary
-        if (!req.file) {
-            return res.status(400).json({ status: 'error', messagev: 'Must add image' });
+        if (!req.files) {
+            return res.status(400).json({ status: 'error', message: 'Must add image' });
         }
-        const imageUrl = await cloudinaryUploadImage(req.file.path);
+        const bookPdfDataUrlString = dataurl.format({
+            data: req.files.bookPdf[0].buffer,
+            mimetype: req.files.bookPdf[0].mimetype,
+        });
+
+        const bookImageDataUrlString = dataurl.format({
+            data: req.files.bookImage[0].buffer,
+            mimetype: req.files.bookImage[0].mimetype,
+        });
+        const uploadedBookImage = await uploadToCloudinary(bookImageDataUrlString, 'book image');
+        const uploadedBookPdf = await uploadToCloudinary(bookPdfDataUrlString, 'pdf');
 
         // Create new book object with Cloudinary image URL
         const newBook = new bookModel({
             bookTitle,
             bookPrice,
             Author,
-            bookImage: imageUrl.secure_url,
+            ['bookImage.url']: uploadedBookImage.secure_url,
+            ['bookImage.public_id']: uploadedBookImage.public_id,
+            ['bookPdf.url']: uploadedBookPdf.secure_url,
+            ['bookPdf.public_id']: uploadedBookPdf.public_id,
             category,
             publisherName,
         });
 
         // Save the new book to the database
         const savedBook = await newBook.save();
-
         res.status(201).json(savedBook);
     } catch (err) {
         console.error(err);
@@ -51,7 +62,7 @@ exports.deleteBook = async (req, res) => {
         }
 
         // Remove the book image from Cloudinary
-        const deleteResult = await cloudinaryRemoveImage(book.bookImage);
+        const deleteResult = await removeFromCloudinary(book.bookImage);
 
         console.log('Cloudinary delete result:', deleteResult);
 
