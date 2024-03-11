@@ -2,7 +2,6 @@ const express = require('express');
 const upload = require('../middleware/multer');
 const { addBook, getAllBooks, deleteBook, updateBook, searchBooksByPrice,getBookById, getCategoryWithBook } = require('../controllers/bookControllers');
 const bookRouter = express.Router();
-
 bookRouter.post('/add', upload.single('bookPdf'), addBook);
 bookRouter.get('/AllBook', getAllBooks);
 bookRouter.delete('/:bookId', deleteBook);
@@ -10,5 +9,4 @@ bookRouter.put('/:bookId', upload.single('bookPdf'), updateBook);
 bookRouter.get('/search', searchBooksByPrice);
 bookRouter.get('/:bookId',getBookById);
 bookRouter.get('/getAllBookInCategory/:categoryId',getCategoryWithBook);
-
 module.exports = bookRouter;

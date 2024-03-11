@@ -18,7 +18,7 @@ exports.addBook = async (req, res) => {
             bookTitle,
             bookPrice,
             Author,
-            bookDescription,s
+            bookDescription,
            ['bookPdf.secure_url']: result.secure_url,
             // category:category._id,
             category: req.body.category,
