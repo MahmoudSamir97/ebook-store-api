@@ -18,15 +18,10 @@ exports.addBook = async (req, res) => {
             bookTitle,
             bookPrice,
             Author,
-<<<<<<< HEAD
-            bookDescription,
+            bookDescription,s
            ['bookPdf.secure_url']: result.secure_url,
             // category:category._id,
             category: req.body.category,
-=======
-            bookImage: imageUrl.secure_url,
-            category,
->>>>>>> 4c7430fbda7b66b7d9b4585cc5770f1b87a6ea86
             publisherName,
         });
         const savedBook = await newBook.save();
