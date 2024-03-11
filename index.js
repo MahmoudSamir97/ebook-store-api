@@ -9,6 +9,7 @@ const userRouter = require('./src/routes/userRoutes');
 const categoryRouter = require('./src/routes/category.routes');
 const bookRouter = require('./src/routes/bookRoutes.js');
 const cartRouter = require('./src/routes/cart.routes.js');
+const couponRouter = require('./src/routes/copoun.routes.js');
 
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 60 minutes
@@ -30,6 +31,7 @@ app.use(hpp());
 app.use('/user', userRouter);
 app.use('/book', bookRouter);
 app.use('/category', categoryRouter);
-app.use('/cart',cartRouter);
+app.use('/cart', cartRouter);
+app.use('/copoun', couponRouter);
 
 module.exports = app;

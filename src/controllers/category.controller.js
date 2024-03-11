@@ -56,7 +56,13 @@ exports.updateCategory = async (req, res) => {
 
         // Check if a new image file is provided
         if (req.file) {
-            const result = await cloudinaryUploadImage(req.file.path);
+            const dataUrlString = dataurl.format({
+                data: req.file.buffer,
+                mimetype: req.file.mimetype,
+            });
+
+            const result = await cloudinaryUploadImage(dataUrlString, 'category');
+
             updateFields.categoryImage = result.secure_url;
         }
 
