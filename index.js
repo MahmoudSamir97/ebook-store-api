@@ -30,6 +30,6 @@ app.use(hpp());
 app.use('/user', userRouter);
 app.use('/book', bookRouter);
 app.use('/category', categoryRouter);
-app.use('/cart',cartRouter);
+app.use('/cart', cartRouter);
 
 module.exports = app;
