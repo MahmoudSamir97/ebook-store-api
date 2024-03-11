@@ -2,6 +2,7 @@ const categoryModel = require('../models/category.model');
 const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudinary');
 const dataurl = require('dataurl');
 
+
 exports.addCategory = async (req, res) => {
     try {
         // Check if category with the same name already exists

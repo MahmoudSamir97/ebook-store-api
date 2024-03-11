@@ -1,31 +1,21 @@
 const { Schema, Types, model } = require('mongoose');
 
-const CartSchema = new Schema(
+const WishlistSchema = new Schema(
     {
-        orderBy: {
+        orderBy:{
             type: Types.ObjectId,
             ref: 'User',
+
         },
-        cartItems: [
+        wishlistItems: [
             {
                 bookId: {
                     type: Types.ObjectId,
                     ref: 'Book',
-                },
-                quantity: {
-                    type: Number,
-                    default: 1,
-                },
-            },
+                }
+            }
         ],
-        totalPrice: Number,
         totalQuantity:Number,
-        totalPriceAfterCoupon:{
-            type:Number,
-            default:0
-
-        }
-
 
     },
     {
@@ -35,5 +25,5 @@ const CartSchema = new Schema(
     }
 );
 
-const cartModel = model('Cart', CartSchema);
-module.exports = cartModel;
+const wishlistModel = model('Wishlist',  WishlistSchema);
+module.exports = wishlistModel;
