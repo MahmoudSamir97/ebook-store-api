@@ -10,6 +10,7 @@ const categoryRouter = require('./src/routes/category.routes');
 const bookRouter = require('./src/routes/bookRoutes.js');
 const cartRouter = require('./src/routes/cart.routes.js');
 const couponRouter = require('./src/routes/copoun.routes.js');
+const wishlistRouter = require('./src/routes/wishlist.routes.js');
 
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 60 minutes
@@ -33,5 +34,5 @@ app.use('/book', bookRouter);
 app.use('/category', categoryRouter);
 app.use('/cart', cartRouter);
 app.use('/copoun', couponRouter);
-
+app.use('/wishlist', wishlistRouter);
 module.exports = app;

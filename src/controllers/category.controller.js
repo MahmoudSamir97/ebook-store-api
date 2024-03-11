@@ -3,6 +3,7 @@ const { cloudinaryUploadImage } = require('../services/uploadImage');
 const { cloudinaryRemoveImage } = require('../services/uploadImage');
 const dataurl = require('dataurl');
 
+
 exports.addCategory = async (req, res) => {
     try {
         // Check if category with the same name already exists
