@@ -1,19 +1,18 @@
 const bookModel = require('../models/Book');
 const cartModel = require('../models/cart.model');
 
-
-
 exports.addToCart = async (req, res) => {
     try {
         if (!req.user.id) {
-            return res.status(401).json({ status: 'FAIL', data: { message: 'You do not have permission to add to the cart' } });
+            return res
+                .status(401)
+                .json({ status: 'FAIL', data: { message: 'You do not have permission to add to the cart' } });
         }
 
         const { cartItems } = req.body;
 
         // Get the user's cart or create a new one if it doesn't exist
         let cart = await cartModel.findOne({ orderBy: req.user.id });
-
 
         if (!cart) {
             cart = new cartModel({
@@ -29,7 +28,7 @@ exports.addToCart = async (req, res) => {
             const bookId = cartItemData.bookId;
 
             // Check if the book is already in the cart
-            const existingCartItem = cart.cartItems.find(item => item.bookId.equals(bookId));
+            const existingCartItem = cart.cartItems.find((item) => item.bookId.equals(bookId));
 
             if (!existingCartItem) {
                 // If the book is not in the cart, retrieve book details
@@ -64,11 +63,10 @@ exports.addToCart = async (req, res) => {
 exports.getUserCart = async (req, res) => {
     try {
         // Find the user's cart and populate all details of the books
-        const cart = await cartModel.findOne({ orderBy: req.user.id })
-            .populate({
-                path: 'cartItems.bookId',
-                model: 'Book',
-            });
+        const cart = await cartModel.findOne({ orderBy: req.user.id }).populate({
+            path: 'cartItems.bookId',
+            model: 'Book',
+        });
 
         // Check if the cart exists
         if (!cart) {
@@ -95,7 +93,7 @@ exports.removeItemFromCart = async (req, res) => {
         }
 
         // Find the index of the item in the cartItems array
-        const itemIndex = cart.cartItems.findIndex(item => item.bookId.toString() === bookId);
+        const itemIndex = cart.cartItems.findIndex((item) => item.bookId.toString() === bookId);
 
         // Check if the item is in the cart
         if (itemIndex === -1) {
@@ -144,6 +142,3 @@ exports.clearCart = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
-
-

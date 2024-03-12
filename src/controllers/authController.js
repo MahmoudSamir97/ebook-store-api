@@ -8,7 +8,7 @@ const createToken = require('../utils/createToken');
 const verifyTemplate = require('../utils/verifyTemplate');
 const resetTemplate = require('../utils/resetTemplate');
 const { createandSendToken } = require('../utils/createandSendToken');
-const { cloudinaryUploadImage } = require('../services/uploadImage');
+const { uploadToCloudinary } = require('../services/cloudinary');
 
 exports.signup = async (req, res) => {
     try {
@@ -76,7 +76,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({ status: 'fail', message: 'You should verify your account before logging!' });
         // 3-) check if user account is deactivated
         if (registeredUser.isDeleted)
-            return res.status(404).json({ status: 'fail', message: 'Your account is Deleted temporarly!' });
+            return res.status(404).json({ status: 'fail', message: 'Your account is Deleted!' });
         // 4-) check if provided password is correct
         const passwordMatch = bcrypt.compareSync(password, registeredUser.password);
         if (!passwordMatch)
@@ -96,7 +96,7 @@ exports.login = async (req, res) => {
         return res.status(200).json({
             status: 'success',
             token,
-            message: 'You entered wrong password!',
+            message: 'Logged in successfully!',
         });
     } catch (err) {
         res.status(500).json({
@@ -159,7 +159,7 @@ exports.PostResetPassword = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) return res.staus(404).json({ status: 'fail', message: 'User with given email not exist ' });
-        if (!password) return res.staus(404).json({ status: 'fail', message: 'Please provide a new password' });
+        if (!password) return res.staus(400).json({ status: 'fail', message: 'Please provide a new password' });
         const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
         user.password = hashedPassword;
         await user.save();
@@ -200,7 +200,7 @@ exports.updateUserData = async (req, res) => {
                 data: req.file.buffer,
                 mimetype: req.file.mimetype,
             });
-            const result = await cloudinaryUploadImage(dataUrlString, 'Portfolio');
+            const result = await uploadToCloudinary(dataUrlString, 'Portfolio');
             user.image.url = result.secure_url;
             user.image.public_id = result.public_id;
             await user.save();

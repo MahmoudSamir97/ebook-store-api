@@ -3,13 +3,12 @@ const { addToCart, removeItemFromCart, clearCart, getUserCart } = require('../co
 const isAuthenticated = require('../middleware/isAuthenticated');
 const cartRouter = express.Router();
 
-cartRouter.post('/',isAuthenticated,addToCart);
+cartRouter.post('/', isAuthenticated, addToCart);
 
-cartRouter.get('/',isAuthenticated,getUserCart);
+cartRouter.get('/', isAuthenticated, getUserCart);
 
-cartRouter.delete('/:bookId',isAuthenticated,removeItemFromCart);
+cartRouter.delete('/:bookId', isAuthenticated, removeItemFromCart);
 
-cartRouter.delete('/',isAuthenticated,clearCart);
+cartRouter.delete('/', isAuthenticated, clearCart);
 
 module.exports = cartRouter;
-

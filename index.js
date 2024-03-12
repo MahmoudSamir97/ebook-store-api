@@ -9,7 +9,7 @@ const userRouter = require('./src/routes/userRoutes');
 const categoryRouter = require('./src/routes/category.routes');
 const bookRouter = require('./src/routes/bookRoutes.js');
 const cartRouter = require('./src/routes/cart.routes.js');
-const reviewRouter=require('./src/routes/reviewRoutes.js')
+
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 60 minutes
     limit: 100, // Limit each IP to 100 requests per `window` .
@@ -31,5 +31,5 @@ app.use('/user', userRouter);
 app.use('/book', bookRouter);
 app.use('/category', categoryRouter);
 app.use('/cart',cartRouter);
-app.use('/review', reviewRouter)
+
 module.exports = app;
