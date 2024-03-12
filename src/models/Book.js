@@ -4,19 +4,26 @@ const bookSchema = new mongoose.Schema(
     {
         bookTitle: {
             type: String,
-            // required: true,
+            required: true,
             trim: true,
             minlength: [3, 'Too short book title'],
             maxlength: [150, 'Too long book title'],
         },
         bookPrice: {
             type: Number,
-            // required: [true, 'book price is required'],
+            required: [true, 'book price is required'],
             trim: true,
         },
+    discount: {
+        type: Number,
+    },
+    priceAfterDiscount: {
+        type: Number,
+        default: 0,
+    },
         Author: {
             type: String,
-            // required: [true, 'Author Name is required'],
+            required: [true, 'Author Name is required'],
             trim: true,
         },
         bookImage: {
@@ -35,6 +42,12 @@ const bookSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Publisher',
         },
+        bookDescription:{
+            type : String,
+            minlength: [10, 'Too short book description'],
+            maxlength: [1000, 'Too long book description'],
+
+        },
         averageRating: {
             type: Number,
             default: 0,
@@ -46,7 +59,7 @@ const bookSchema = new mongoose.Schema(
           user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            // required: true,
+            required: true,
           },
     },
     {
