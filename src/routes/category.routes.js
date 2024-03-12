@@ -9,7 +9,6 @@ const {
 const upload = require('../middleware/multer');
 const { categoryValidationSchema, updateCategorySchema } = require('../validations/category.validation');
 const { validation } = require('../middleware/validation');
-
 const categoryRouter = express.Router();
 
 categoryRouter.post('/', upload.single('categoryImage'), validation(categoryValidationSchema), addCategory);

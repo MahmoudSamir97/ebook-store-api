@@ -4,11 +4,20 @@ const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudi
 const categoryModel = require('../models/category.model');
 exports.addBook = async (req, res) => {
     try {
-        const { bookTitle, bookPrice, Author, category, publisherName } = req.body;
+        const { bookTitle, bookPrice, Author, category, publisherName, bookDescription, user, discount } = req.body;
+
         // Upload image to Cloudinary
         if (!req.files) {
             return res.status(400).json({ status: 'error', message: 'Must add image' });
         }
+
+        // Calculate price after discount if discount is provided
+        let priceAfterDiscount = bookPrice; // Default price after discount is same as book price
+        if (discount && discount >= 0 && discount <= 100) {
+            const discountAmount = (bookPrice * discount) / 100;
+            priceAfterDiscount = bookPrice - discountAmount;
+        }
+
         const bookPdfDataUrlString = dataurl.format({
             data: req.files.bookPdf[0].buffer,
             mimetype: req.files.bookPdf[0].mimetype,
@@ -25,13 +34,18 @@ exports.addBook = async (req, res) => {
             bookTitle,
             bookPrice,
             Author,
+            user,
+            discount,
+            priceAfterDiscount,
             ['bookImage.url']: uploadedBookImage.secure_url,
             ['bookImage.public_id']: uploadedBookImage.public_id,
             ['bookPdf.url']: uploadedBookPdf.secure_url,
             ['bookPdf.public_id']: uploadedBookPdf.public_id,
             category,
             publisherName,
+            bookDescription,
         });
+
         const savedBook = await newBook.save();
         res.status(201).json(savedBook);
     } catch (err) {
@@ -46,9 +60,8 @@ exports.deleteBook = async (req, res) => {
         const book = await bookModel.findById(bookId);
 
         if (!book) {
-            return res.status(404).json({ status: 'ERROR', data: { message: 'book not found' } });
+            return res.status(404).json({ status: 'error', data: { message: 'book not found' } });
         }
-
         // Remove the book image from Cloudinary
         const deleteResult = await removeFromCloudinary(book.bookImage);
 
@@ -56,45 +69,8 @@ exports.deleteBook = async (req, res) => {
 
         await bookModel.findOneAndDelete({ _id: bookId });
 
-        res.status(200).json({ status: 'Done', data: null });
+        res.status(200).json({ status: 'Deleted Succefully', data: null });
     } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message, data: null });
-    }
-};
-exports.updateBook = async (req, res) => {
-    try {
-        const bookId = req.params.bookId; // Assuming you have the book ID in the request parameters
-        const { bookTitle, bookPrice, Author, bookDescription } = req.body; // Extract book details from request body
-
-        // Find the book by ID
-        const book = await bookModel.findById(bookId);
-
-        // If book is not found, return error
-        if (!book) {
-            return res.status(404).json({ status: 'ERROR', data: { message: 'Book not found' } });
-        }
-
-        // Prepare update fields
-        let updateFields = { bookTitle, bookPrice, Author, bookDescription };
-
-        // Check if a new image file is provided
-        if (req.file) {
-            const dataUrlString = dataurl.format({
-                data: req.file.buffer,
-                mimetype: req.file.mimetype,
-            });
-            // Upload image to cloudinary
-            const result = await uploadToCloudinary(dataUrlString, 'book image');
-            updateFields.bookPdf = result.secure_url;
-        }
-
-        // Update the book using findOneAndUpdate
-        const updatedBook = await bookModel.findOneAndUpdate({ _id: bookId }, { $set: updateFields }, { new: true });
-
-        // Return success response with updated book data
-        res.status(200).json({ status: 'Done', data: { updatedBook } });
-    } catch (error) {
-        // Return error response if any error occurs
         res.status(500).json({ status: 'error', message: error.message, data: null });
     }
 };
@@ -163,5 +139,62 @@ exports.getCategoryWithBook = async (req, res) => {
         res.status(200).json({ status: 'SUCCESS', data: { allCategoryProducts } });
     } catch (error) {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
+    }
+};
+exports.updateBook = async (req, res) => {
+    try {
+        const bookId = req.params.bookId;
+        const { bookTitle, bookPrice, Author, category, publisherName, bookDescription, user, discount } = req.body;
+
+        // Check if the book exists
+        const book = await bookModel.findById(bookId);
+        if (!book) {
+            return res.status(404).json({ status: 'error', message: 'Book not found' });
+        }
+
+        // Update the fields that are provided in the request body
+        if (bookTitle) book.bookTitle = bookTitle;
+        if (bookPrice) book.bookPrice = bookPrice;
+        if (Author) book.Author = Author;
+        if (category) book.category = category;
+        if (publisherName) book.publisherName = publisherName;
+        if (bookDescription) book.bookDescription = bookDescription;
+        if (user) book.user = user;
+
+        // Calculate price after discount if discount is provided
+        if (discount && discount >= 0 && discount <= 100) {
+            const discountAmount = (book.bookPrice * discount) / 100;
+            book.discount = discount;
+            book.priceAfterDiscount = book.bookPrice - discountAmount;
+        }
+
+        // Handle bookPdf and bookImage updates
+        if (req.files) {
+            if (req.files.bookPdf) {
+                const bookPdfDataUrlString = dataurl.format({
+                    data: req.files.bookPdf[0].buffer,
+                    mimetype: req.files.bookPdf[0].mimetype,
+                });
+                const uploadedBookPdf = await uploadToCloudinary(bookPdfDataUrlString, 'pdf');
+                book['bookPdf.url'] = uploadedBookPdf.secure_url;
+                book['bookPdf.public_id'] = uploadedBookPdf.public_id;
+            }
+            if (req.files.bookImage) {
+                const bookImageDataUrlString = dataurl.format({
+                    data: req.files.bookImage[0].buffer,
+                    mimetype: req.files.bookImage[0].mimetype,
+                });
+                const uploadedBookImage = await uploadToCloudinary(bookImageDataUrlString, 'book image');
+                book['bookImage.url'] = uploadedBookImage.secure_url;
+                book['bookImage.public_id'] = uploadedBookImage.public_id;
+            }
+        }
+
+        // Save the updated book
+        const updatedBook = await book.save();
+
+        res.status(200).json({ status: 'success', data: updatedBook });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
     }
 };
