@@ -2,21 +2,19 @@ const { Schema, Types, model } = require('mongoose');
 
 const WishlistSchema = new Schema(
     {
-        orderBy:{
+        orderBy: {
             type: Types.ObjectId,
             ref: 'User',
-
         },
         wishlistItems: [
             {
                 bookId: {
                     type: Types.ObjectId,
                     ref: 'Book',
-                }
-            }
+                },
+            },
         ],
-        totalQuantity:Number,
-
+        totalQuantity: Number,
     },
     {
         timestamps: true,
@@ -25,5 +23,5 @@ const WishlistSchema = new Schema(
     }
 );
 
-const wishlistModel = model('Wishlist',  WishlistSchema);
+const wishlistModel = model('Wishlist', WishlistSchema);
 module.exports = wishlistModel;

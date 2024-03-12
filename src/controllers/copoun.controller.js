@@ -1,11 +1,12 @@
 const couponModel = require('../models/copoun.model');
-const cartModel =require('../models/cart.model');
+const cartModel = require('../models/cart.model');
 
-exports.createCoupon = async(req,res) => {
-
-    try{
+exports.createCoupon = async (req, res) => {
+    try {
         if (!req.user.id) {
-            return res.status(401).json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
+            return res
+                .status(401)
+                .json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
         }
         const newCoupon = new couponModel({
             couponCode: req.body.couponCode,
@@ -15,35 +16,29 @@ exports.createCoupon = async(req,res) => {
 
         await newCoupon.save();
         res.status(201).json({ status: 'SUCCESS', data: { message: 'Coupon Add successfully', newCoupon } });
-
-    }catch(error){
-        res.status(500).json({ status: 'ERROR', message: error.message, data: null });
-    }
-
-};
-
-exports.getAllCoupons= async(req,res) => {
-
-    try {
-
-        const coupons = await couponModel.find();
-        res.status(201).json({ status: 'SUCCESS', data: { message: 'ALL Coupons', coupons } });
-
     } catch (error) {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
     }
-
 };
 
-exports.updateCoupon= async(req,res)=>  {
-
+exports.getAllCoupons = async (req, res) => {
     try {
+        const coupons = await couponModel.find();
+        res.status(201).json({ status: 'SUCCESS', data: { message: 'ALL Coupons', coupons } });
+    } catch (error) {
+        res.status(500).json({ status: 'ERROR', message: error.message, data: null });
+    }
+};
 
+exports.updateCoupon = async (req, res) => {
+    try {
         if (!req.user.id) {
-            return res.status(401).json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
+            return res
+                .status(401)
+                .json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
         }
         const couponId = req.params.couponId;
-        const {  couponCode, couponValue, expireIn } = req.body;
+        const { couponCode, couponValue, expireIn } = req.body;
 
         const coupon = await couponModel.findById(couponId);
 
@@ -53,7 +48,7 @@ exports.updateCoupon= async(req,res)=>  {
 
         // Update the coupon
         const updateCoupon = await couponModel.findOneAndUpdate(
-            { _id: couponId},
+            { _id: couponId },
             {
                 $set: {
                     couponCode,
@@ -68,19 +63,18 @@ exports.updateCoupon= async(req,res)=>  {
             return res.status(404).json({ status: 'FAIL', data: { message: 'coupon not found' } });
         }
 
-        res.status(200).json({ status: 'SUCCESS', data: { updateCoupon} });
+        res.status(200).json({ status: 'SUCCESS', data: { updateCoupon } });
     } catch (error) {
-
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
     }
-
 };
 
 exports.deletedCoupon = async (req, res) => {
     try {
-
         if (!req.user.id) {
-            return res.status(401).json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
+            return res
+                .status(401)
+                .json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
         }
 
         const couponId = req.params.couponId;
@@ -90,17 +84,17 @@ exports.deletedCoupon = async (req, res) => {
             return res.status(404).json({ status: 'FAIL', data: { message: 'Coupon not found' } });
         }
         // Use findOneAndUpdate to update the deletedBy field without actually deleting the coupon
-        const deletedCoupon = await couponModel.findOneAndUpdate(
-            { _id: couponId },
-            { new: true }
-        );
+        const deletedCoupon = await couponModel.findOneAndUpdate({ _id: couponId }, { new: true });
 
-        res.status(200).json({ status: 'SUCCESS', data: deletedCoupon, message: 'Coupon marked as deleted successfully' });
+        res.status(200).json({
+            status: 'SUCCESS',
+            data: deletedCoupon,
+            message: 'Coupon marked as deleted successfully',
+        });
     } catch (error) {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
     }
 };
-
 
 exports.applyCoupon = async (req, res) => {
     try {
