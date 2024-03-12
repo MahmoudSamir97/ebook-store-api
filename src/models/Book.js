@@ -37,6 +37,19 @@ const bookSchema = new mongoose.Schema(
             ref: 'Publisher',
             // required: [true, 'Publisher name is required'],
         },
+        averageRating: {
+            type: Number,
+            default: 0,
+          },
+          numOfReviews: {
+            type: Number,
+            default: 0,
+          },
+          user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            // required: true,
+          },
     },
     {
         timestamps: true,
@@ -45,6 +58,18 @@ const bookSchema = new mongoose.Schema(
     }
 );
 
+// If I want to search single product, in tha product I also want to have all reviews associated with that product.
+bookSchema.virtual("reviews", {
+    ref: "Review",
+    localField: "_id",
+    foreignField: "book",
+    justOne: false,
+  })
+
+  bookSchema.pre("remove", async function (next) {
+    // Go to 'Reveiw; and delete all the review that are associated with this particular product
+    await this.model("Review").deleteMany({ book: this._id })
+  })
 const bookModel = mongoose.model('Book', bookSchema);
 
 module.exports = bookModel;
