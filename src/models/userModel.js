@@ -37,9 +37,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please Provide your phone number!'],
     },
-    age: {
+    dateOfBirth: {
         type: String,
-        required: [true, 'Please Provide your DOB!'],
+        trim: true,
+        required: [true, 'Please Provide your date of birth!'],
     },
     role: {
         type: String,
