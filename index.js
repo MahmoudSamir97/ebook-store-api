@@ -12,6 +12,7 @@ const cartRouter = require('./src/routes/cart.routes.js');
 const couponRouter = require('./src/routes/copoun.routes.js');
 const wishlistRouter = require('./src/routes/wishlist.routes.js');
 
+
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 60 minutes
     limit: 100, // Limit each IP to 100 requests per `window` .
@@ -28,6 +29,9 @@ app.use(express.json());
 app.use(mongoSanitize());
 // 5-)PREVENT AGAINST HTTP PARAMTER POLLUTION
 app.use(hpp());
+
+const cors = require('cors');
+app.use(cors());
 
 app.use('/user', userRouter);
 app.use('/book', bookRouter);
