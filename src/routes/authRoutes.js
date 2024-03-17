@@ -1,8 +1,9 @@
 const express = require('express');
 const authRouter = express.Router();
-const validate = require('../middleware/validateFn');
 const signupSchema = require('../validations/signupSchema');
-
+const { validation } = require('../middleware/validation');
+const resetSchema = require('../validations/resetPasswordSchema');
+const resetMiddleware = require('../middleware/resetMiddleware');
 // Controller functions
 const {
     signup,
@@ -10,14 +11,15 @@ const {
     forgetPassword,
     getResetPassword,
     verify,
-    PostResetPassword,
+    resetPassword,
 } = require('../controllers/authController');
 
-authRouter.post('/signup', validate(signupSchema), signup);
+authRouter.post('/signup', validation(signupSchema), signup);
 authRouter.get('/verify/:token', verify);
 authRouter.post('/login', login);
 authRouter.post('/forget-password', forgetPassword);
-authRouter.get('/reset-password/:resetlink', getResetPassword);
-authRouter.post('/reset-password', PostResetPassword);
-
+authRouter
+    .route('/reset-password/:resetlink')
+    .get(getResetPassword)
+    .post(resetMiddleware, validation(resetSchema), resetPassword);
 module.exports = authRouter;
