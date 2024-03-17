@@ -1,14 +1,11 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
-const dataurl = require('dataurl');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const sendeEmail = require('../services/sendEmail');
 const createToken = require('../utils/createToken');
 const verifyTemplate = require('../utils/verifyTemplate');
 const resetTemplate = require('../utils/resetTemplate');
-const { createandSendToken } = require('../utils/createandSendToken');
-const { uploadToCloudinary } = require('../services/cloudinary');
 
 exports.signup = async (req, res) => {
     try {
@@ -17,7 +14,7 @@ exports.signup = async (req, res) => {
         const foundedUser = await User.findOne({ email: req.body.email });
         if (foundedUser)
             return res.status(400).json({
-                status: 'failed',
+                status: 'fail',
                 message: 'User already registered',
             });
         //2-) HASHING PASSWORD, THEN SAVE IT IN DB
@@ -26,7 +23,7 @@ exports.signup = async (req, res) => {
         // 3-) SEND VERIFICATION STRING THROUGH EMAIL
         const { _id, userName, email } = newUser;
         const token = createToken(_id, process.env.JWT_EXPIRES_IN);
-        const verifyURL = `http://127.0.0.1:${process.env.PORT}/user/verify/${token}`;
+        const verifyURL = `http://127.0.0.1:${process.env.PORT}/auth/verify/${token}`;
         sendeEmail(verifyTemplate, email, verifyURL, userName);
         res.status(201).json({
             status: 'success',
@@ -34,7 +31,7 @@ exports.signup = async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({
-            status: 'failed',
+            status: 'error',
             message: err.message,
         });
     }
@@ -49,10 +46,7 @@ exports.verify = async (req, res) => {
             return res.status(404).json({ status: 'fail', message: 'User not found!, verification failed' });
         foundedUser.isVerfied = true;
         await foundedUser.save();
-        res.status(200).json({
-            status: 'success',
-            message: 'User verified successfully',
-        });
+        res.status(200).send('<h1> Email has been verified successfully! 😍</h1> <h3>Please open login page </h3>');
     } catch (err) {
         res.status(500).json({
             status: 'error',
@@ -121,19 +115,19 @@ exports.forgetPassword = async (req, res) => {
         await oldUser.save();
         // 3-SEND RESET STRING THROUGH EMAIL
         const { email, userName } = oldUser;
-        const resetURL = `http://127.0.0.1:${process.env.PORT}/user/reset-password/${resetLink}`;
+        const resetURL = `http://127.0.0.1:${process.env.PORT}/auth/reset-password/${resetLink}`;
         sendeEmail(resetTemplate, email, resetURL, userName);
 
         res.status(201).json({
             status: 'success',
-            message: 'Check your mail to reset your password!',
+            message: 'Check your email to reset your password!',
             data: {
                 oldUser,
             },
         });
     } catch (err) {
         res.status(500).json({
-            status: 'failed',
+            status: 'error',
             message: err.message,
         });
     }
@@ -146,7 +140,9 @@ exports.getResetPassword = async (req, res) => {
             passwordResetExpires: { $gt: Date.now() },
         });
         if (!foundedUser) return res.status(400).json({ message: 'Reset link is invalid or has been expired' });
+        // (In Production) return res.redirect('/error');
         res.status(200).json({ status: 'success', message: 'Enter your new password', data: { foundedUser } });
+        // (In Production) res.render('resetPassword', { resetLink: req.params.resetlink });
     } catch (err) {
         res.status(500).json({
             status: 'error',
@@ -154,89 +150,15 @@ exports.getResetPassword = async (req, res) => {
         });
     }
 };
-exports.PostResetPassword = async (req, res) => {
+exports.resetPassword = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
-        if (!user) return res.staus(404).json({ status: 'fail', message: 'User with given email not exist ' });
-        if (!password) return res.staus(400).json({ status: 'fail', message: 'Please provide a new password' });
-        const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
+        const { newPassword } = req.body;
+        const { user } = req;
+        if (!newPassword) return res.staus(400).json({ status: 'fail', message: 'Please provide a new password' });
+        const hashedPassword = await bcrypt.hash(newPassword, Number(process.env.BCRYPT_SALT));
         user.password = hashedPassword;
         await user.save();
         res.status(200).json({ status: 'success', message: 'New Password added successfully!' });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            err: err.message,
-        });
-    }
-};
-
-exports.updatePassword = async (req, res) => {
-    try {
-        // 1-FIND USER
-        const user = await User.findById(req.user.id).select('+password');
-        // 2-CHECK IF PROVIDED PASSWORD CORRECT
-        const passwordMatch = bcrypt.compareSync(req.body.oldPassword, user.password);
-        if (!passwordMatch) return res.status(404).json({ status: 'fail', message: 'Old password is not correct!' });
-        // 3-UPDATE PASSWORD
-        const hashedPassword = await bcrypt.hash(req.body.newPassword, Number(process.env.BCRYPT_SALT));
-        user.password = hashedPassword;
-        await user.save();
-        // 4-CREATE AND SEND TOKEN
-        createandSendToken(user, user._id, process.env.JWT_EXPIRES_IN, 200, res);
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            err: err.message,
-        });
-    }
-};
-exports.updateUserData = async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
-        if (req.file) {
-            const dataUrlString = dataurl.format({
-                data: req.file.buffer,
-                mimetype: req.file.mimetype,
-            });
-            const result = await uploadToCloudinary(dataUrlString, 'Portfolio');
-            user.image.url = result.secure_url;
-            user.image.public_id = result.public_id;
-            await user.save();
-        }
-        const updatedUser = await User.findByIdAndUpdate(
-            req.user._id,
-            { ...req.body },
-            { runValidators: true, new: true }
-        );
-        res.status(200).json({ status: 'success', message: 'data updated successfully', data: { updatedUser } });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            err: err.message,
-        });
-    }
-};
-
-exports.deleteUser = async (req, res) => {
-    try {
-        await User.findByIdAndUpdate(req.user._id, { isDeleted: true });
-        res.status(200).json({ status: 'success', message: 'User deleted successfully!' });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            err: err.message,
-        });
-    }
-};
-exports.getAllUsers = async (req, res) => {
-    try {
-        const users = await User.find();
-        res.status(200).json({
-            status: 'success',
-            data: { users },
-        });
     } catch (err) {
         res.status(500).json({
             status: 'error',
