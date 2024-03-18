@@ -2,24 +2,29 @@ const { Schema, Types, model } = require('mongoose');
 
 const CartSchema = new Schema(
     {
-        orderBy: {
+        // registered user
+        userId: {
             type: Types.ObjectId,
             ref: 'User',
         },
+        // Stripe properties
+        customerId: String,
+        paymentIntentId: String,
+        paymentStatus: {
+            type: String,
+            required: true,
+        },
         cartItems: [
             {
-                bookId: {
-                    type: Types.ObjectId,
-                    ref: 'Book',
+                name: {
+                    type: String,
                 },
-                quantity: {
-                    type: Number,
-                    default: 1,
+                price: {
+                    type: String,
                 },
             },
         ],
         totalPrice: Number,
-        totalQuantity: Number,
         totalPriceAfterCoupon: {
             type: Number,
             default: 0,
