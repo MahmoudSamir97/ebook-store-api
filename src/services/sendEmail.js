@@ -13,7 +13,7 @@ const sendeEmail = async (templateUsed, email, link, userName) => {
     const mailOptions = {
         from: process.env.NODEMAILER_EMAIL,
         to: email,
-        subject: 'Sending Email using Node.js',
+        subject: 'Readify email service',
         html: templateUsed(link, userName),
     };
     // 3-)SEND AN EMAIL
