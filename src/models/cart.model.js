@@ -19,14 +19,11 @@ const CartSchema = new Schema(
             },
         ],
         totalPrice: Number,
-        totalQuantity:Number,
-        totalPriceAfterCoupon:{
-            type:Number,
-            default:0
-
-        }
-
-
+        totalQuantity: Number,
+        totalPriceAfterCoupon: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,

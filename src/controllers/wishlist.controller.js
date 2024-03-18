@@ -1,11 +1,12 @@
 const bookModel = require('../models/Book');
 const wishlistModel = require('../models/wishlist.model');
 
-
 exports.addToWishlist = async (req, res) => {
     try {
         if (!req.user.id) {
-            return res.status(401).json({ status: 'FAIL', data: { message: 'You do not have permission to add to wishlist' } });
+            return res
+                .status(401)
+                .json({ status: 'FAIL', data: { message: 'You do not have permission to add to wishlist' } });
         }
 
         const { wishlistItems } = req.body;
@@ -26,14 +27,16 @@ exports.addToWishlist = async (req, res) => {
             const bookId = wishlistItemData.bookId;
 
             // Check if the book is already in the wishlist
-            const existingWishlistItem = wishlist.wishlistItems.find(item => item.bookId.equals(bookId));
+            const existingWishlistItem = wishlist.wishlistItems.find((item) => item.bookId.equals(bookId));
 
             if (!existingWishlistItem) {
                 // If the book is not in the wishlist, retrieve book details
                 const book = await bookModel.findById(bookId);
 
                 if (!book) {
-                    return res.status(404).json({ status: 'FAIL', data: { message: `Book with ID ${bookId} not found` } });
+                    return res
+                        .status(404)
+                        .json({ status: 'FAIL', data: { message: `Book with ID ${bookId} not found` } });
                 }
 
                 // Add the book to the wishlist with a quantity of 1
@@ -49,22 +52,23 @@ exports.addToWishlist = async (req, res) => {
         // Save the updated wishlist
         await wishlist.save();
 
-        res.status(200).json({ status: 'SUCCESS', data: { message: 'Books added to wishlist successfully', wishlist } });
+        res.status(200).json({
+            status: 'SUCCESS',
+            data: { message: 'Books added to wishlist successfully', wishlist },
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: 'FAIL', data: { message: 'Internal Server Error' } });
     }
 };
 
-
 exports.getUserWishlist = async (req, res) => {
     try {
         // Find the user's cart and populate all details of the books
-        const cart = await wishlistModel.findOne({ orderBy: req.user.id })
-            .populate({
-                path: 'wishlistItems.bookId',
-                model: 'Book',
-            });
+        const cart = await wishlistModel.findOne({ orderBy: req.user.id }).populate({
+            path: 'wishlistItems.bookId',
+            model: 'Book',
+        });
 
         // Check if the cart exists
         if (!cart) {
@@ -81,7 +85,9 @@ exports.getUserWishlist = async (req, res) => {
 exports.removeItemFromWishlist = async (req, res) => {
     try {
         if (!req.user.id) {
-            return res.status(401).json({ status: 'FAIL', data: { message: 'You do not have permission to remove from wishlist' } });
+            return res
+                .status(401)
+                .json({ status: 'FAIL', data: { message: 'You do not have permission to remove from wishlist' } });
         }
 
         const { bookId } = req.params;
@@ -94,7 +100,7 @@ exports.removeItemFromWishlist = async (req, res) => {
         }
 
         // Check if the bookId exists in the wishlist
-        const existingItemIndex = wishlist.wishlistItems.findIndex(item => item.bookId.equals(bookId));
+        const existingItemIndex = wishlist.wishlistItems.findIndex((item) => item.bookId.equals(bookId));
 
         if (existingItemIndex === -1) {
             return res.status(404).json({ status: 'FAIL', data: { message: 'Book not found in the wishlist' } });
@@ -107,7 +113,10 @@ exports.removeItemFromWishlist = async (req, res) => {
         // Save the updated wishlist
         await wishlist.save();
 
-        res.status(200).json({ status: 'SUCCESS', data: { message: 'Book removed from wishlist successfully', wishlist } });
+        res.status(200).json({
+            status: 'SUCCESS',
+            data: { message: 'Book removed from wishlist successfully', wishlist },
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: 'FAIL', data: { message: 'Internal Server Error' } });
@@ -130,5 +139,3 @@ exports.clearWishlist = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
-
