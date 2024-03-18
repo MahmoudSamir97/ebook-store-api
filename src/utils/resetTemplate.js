@@ -25,7 +25,7 @@ const resetTemplate = (link) => {
                               </tr>
                               <tr>
                                   <td style="text-align:center;">
-                                  <h1> e-book store 📙 </h1>
+                                  <h1> Readify 📙 </h1>
                                   </td>
                               </tr>
                               <tr>
@@ -65,7 +65,7 @@ const resetTemplate = (link) => {
                               </tr>
                               <tr>
                                   <td style="text-align:center;">
-                                      <p style="font-size:14px; color:rgba(69, 80, 86, 0.7411764705882353); line-height:18px; margin:0 0 0;">&copy; <strong>e-book store </strong></p>
+                                      <p style="font-size:14px; color:rgba(69, 80, 86, 0.7411764705882353); line-height:18px; margin:0 0 0;">&copy; <strong>Readify 2024 </strong></p>
                                   </td>
                               </tr>
                               <tr>
