@@ -99,6 +99,42 @@ exports.login = async (req, res) => {
         });
     }
 };
+exports.getDashboard = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const registeredUser = await User.findOne({ email }).select('+password');
+        if (!registeredUser)
+            return res.status(404).json({
+                status: 'fail',
+                message: 'User with given email not exist',
+            });
+        // 2-) check if user has verified email
+        if (!registeredUser.isVerfied)
+            return res.status(401).json({ status: 'fail', message: 'You should verify your account before logging!' });
+        // 3-) check if user account is deactivated
+        if (registeredUser.isDeleted)
+            return res.status(404).json({ status: 'fail', message: 'Your account is Deleted!' });
+        // 4-) check if provided password is correct
+        const passwordMatch = bcrypt.compareSync(password, registeredUser.password);
+        if (!passwordMatch)
+            return res.status(401).json({
+                status: 'fail',
+                message: 'You entered wrong password!',
+            });
+        if (registeredUser.role !== 'admin') return res.status(403).json({ message: 'You are not authorized!' });
+        const token = createToken(registeredUser._id, process.env.JWT_EXPIRES_IN);
+        return res.status(200).json({
+            status: 'success',
+            token,
+            message: 'Logged in successfully!',
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err.message,
+        });
+    }
+};
 
 exports.forgetPassword = async (req, res) => {
     try {

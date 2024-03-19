@@ -12,11 +12,13 @@ const {
     getResetPassword,
     verify,
     resetPassword,
+    getDashboard,
 } = require('../controllers/authController');
 
 authRouter.post('/signup', validation(signupSchema), signup);
 authRouter.get('/verify/:token', verify);
 authRouter.post('/login', login);
+authRouter.post('/admin', getDashboard);
 authRouter.post('/forget-password', forgetPassword);
 authRouter
     .route('/reset-password/:resetlink')
