@@ -6,6 +6,15 @@ const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const { rateLimit } = require('express-rate-limit');
 const app = express();
+// socket.io
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: process.env.CLIENT_URL,
+        methods: ['GET', 'POST'],
+    },
+});
+//
 const categoryRouter = require('./src/routes/category.routes');
 const bookRouter = require('./src/routes/bookRoutes.js');
 const cartRouter = require('./src/routes/cart.routes.js');
@@ -23,7 +32,7 @@ const limiter = rateLimit({
     message: 'Too many requests! try again in one hour',
 });
 // MIDDLEWARES
-// to allow requests from different origin brosers
+// to allow requests from different origin browsers
 app.use(cors());
 // 1-)FOR SECURE HTTP HEADERS
 app.use(helmet());
@@ -48,4 +57,4 @@ app.use('/copoun', couponRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/stripe', stripeRouter);
 
-module.exports = app;
+module.exports = server;
