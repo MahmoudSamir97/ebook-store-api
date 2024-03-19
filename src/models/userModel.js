@@ -2,63 +2,74 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const validator = require('validator');
 
-const userSchema = new mongoose.Schema({
-    firstName: {
-        type: String,
-        required: [true, 'Please Enter your first name!'],
+const userSchema = new mongoose.Schema(
+    {
+        firstName: {
+            type: String,
+            required: [true, 'Please Enter your first name!'],
+        },
+        lastName: {
+            type: String,
+            required: [true, 'Please Enter your last name!'],
+        },
+        userName: {
+            type: String,
+            required: [true, 'Please Enter a unique user name!'],
+            unique: true,
+        },
+        email: {
+            type: String,
+            required: [true, 'Please Provide your email address!'],
+            unique: true,
+            validate: [validator.isEmail, 'Please Provide a valid email address!'],
+        },
+        image: {
+            public_id: String,
+            url: String,
+        },
+        password: {
+            type: String,
+            required: [true, 'Please Provide your password!'],
+            unique: true,
+            minlength: 8,
+            select: false,
+        },
+        phoneNumber: {
+            type: String,
+            required: [true, 'Please Provide your phone number!'],
+        },
+        dateOfBirth: {
+            type: String,
+            trim: true,
+            required: [true, 'Please Provide your date of birth!'],
+        },
+        role: {
+            type: String,
+            enum: ['user', 'admin'],
+            default: 'user',
+        },
+        isVerfied: {
+            type: Boolean,
+            default: false,
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false,
+            select: false,
+        },
+        newMessages: {
+            type: Object,
+            default: {},
+        },
+        status: {
+            type: String,
+            default: 'online',
+        },
+        passwordResetString: String,
+        passwordResetExpires: Date,
     },
-    lastName: {
-        type: String,
-        required: [true, 'Please Enter your last name!'],
-    },
-    userName: {
-        type: String,
-        required: [true, 'Please Enter a unique user name!'],
-        unique: true,
-    },
-    email: {
-        type: String,
-        required: [true, 'Please Provide your email address!'],
-        unique: true,
-        validate: [validator.isEmail, 'Please Provide a valid email address!'],
-    },
-    image: {
-        public_id: String,
-        url: String,
-    },
-    password: {
-        type: String,
-        required: [true, 'Please Provide your password!'],
-        unique: true,
-        minlength: 8,
-        select: false,
-    },
-    phoneNumber: {
-        type: String,
-        required: [true, 'Please Provide your phone number!'],
-    },
-    dateOfBirth: {
-        type: String,
-        trim: true,
-        required: [true, 'Please Provide your date of birth!'],
-    },
-    role: {
-        type: String,
-        enum: ['user', 'admin'],
-        default: 'user',
-    },
-    isVerfied: {
-        type: Boolean,
-        default: false,
-    },
-    isDeleted: {
-        type: Boolean,
-        default: false,
-        select: false,
-    },
-    passwordResetString: String,
-    passwordResetExpires: Date,
-});
+    { minimize: false }
+);
 // PRE HOOK, NOT RETRIEVE USERS WITH DELETED ACCOUNT
 userSchema.pre(/^find/, function () {
     this.find({ isDeleted: false });

@@ -78,13 +78,15 @@ exports.login = async (req, res) => {
                 status: 'fail',
                 message: 'You entered wrong password!',
             });
-        // 5-) send token to user if logged successfully
+        // 5-) send token to user if logged successfully and set status online
         const token = createToken(registeredUser._id, process.env.JWT_EXPIRES_IN);
         const cookieOptions = {
             expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
             httpOnly: true,
             secure: false,
         };
+        registeredUser.status = 'online';
+        await registeredUser.save();
         // FOR PRODUCTION
         res.cookie('token', token, cookieOptions);
         return res.status(200).json({

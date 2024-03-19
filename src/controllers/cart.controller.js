@@ -12,11 +12,11 @@ exports.addToCart = async (req, res) => {
         const { cartItems } = req.body;
 
         // Get the user's cart or create a new one if it doesn't exist
-        let cart = await cartModel.findOne({ orderBy: req.user.id });
+        let cart = await cartModel.findOne({ userId: req.user.id });
 
         if (!cart) {
             cart = new cartModel({
-                orderBy: req.user.id,
+                userId: req.user.id,
                 cartItems: [],
                 totalPrice: 0,
                 totalQuantity: 0,
@@ -63,7 +63,7 @@ exports.addToCart = async (req, res) => {
 exports.getUserCart = async (req, res) => {
     try {
         // Find the user's cart and populate all details of the books
-        const cart = await cartModel.findOne({ orderBy: req.user.id }).populate({
+        const cart = await cartModel.findOne({ userId: req.user.id }).populate({
             path: 'cartItems.bookId',
             model: 'Book',
         });
@@ -79,13 +79,27 @@ exports.getUserCart = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+exports.getAllCarts = async (req, res) => {
+    try {
+        // Find the user's cart and populate all details of the books
+        const cart = await cartModel.find();
+
+        // Check if the cart exists
+        if (cart.length === 0) {
+            return res.status(404).json({ error: 'Cart not found' });
+        }
+        res.status(200).json({ status: 'success', cart });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 exports.removeItemFromCart = async (req, res) => {
     try {
         const { bookId } = req.params;
 
         // Find the user's cart
-        const cart = await cartModel.findOne({ orderBy: req.user.id });
+        const cart = await cartModel.findOne({ userId: req.user.id });
 
         // Check if the cart exists
         if (!cart) {
@@ -129,7 +143,7 @@ exports.removeItemFromCart = async (req, res) => {
 exports.clearCart = async (req, res) => {
     try {
         // Find the user's cart and delete it
-        const deletedCart = await cartModel.deleteOne({ orderBy: req.user.id });
+        const deletedCart = await cartModel.deleteOne({ userId: req.user.id });
 
         // Check if the cart was deleted
         if (!deletedCart.deletedCount) {
