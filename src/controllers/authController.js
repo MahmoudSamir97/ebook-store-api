@@ -24,7 +24,9 @@ exports.signup = async (req, res) => {
         const { _id, userName, email } = newUser;
         const token = createToken(_id, process.env.JWT_EXPIRES_IN);
         const verifyURL = `http://127.0.0.1:${process.env.PORT}/auth/verify/${token}`;
-        sendeEmail(verifyTemplate, email, verifyURL, userName);
+        const loginUrl = 'http://localhost:3000/login';
+
+        sendeEmail(verifyTemplate, email, verifyURL, userName, loginUrl);
         res.status(201).json({
             status: 'success',
             message: 'verification link has been sent to your email',
@@ -40,6 +42,7 @@ exports.signup = async (req, res) => {
 exports.verify = async (req, res) => {
     try {
         const { token } = req.params;
+        console.log(token);
         const { id } = jwt.verify(token, process.env.JWT_SECRET);
         const foundedUser = await User.findById(id);
         if (!foundedUser)
@@ -63,7 +66,7 @@ exports.login = async (req, res) => {
         if (!registeredUser)
             return res.status(404).json({
                 status: 'fail',
-                message: 'User with given email not exist',
+                message: 'User with given email not exist! Please signup first',
             });
         // 2-) check if user has verified email
         if (!registeredUser.isVerfied)
@@ -153,7 +156,7 @@ exports.forgetPassword = async (req, res) => {
         await oldUser.save();
         // 3-SEND RESET STRING THROUGH EMAIL
         const { email, userName } = oldUser;
-        const resetURL = `http://127.0.0.1:${process.env.PORT}/auth/reset-password/${resetLink}`;
+        const resetURL = `http://localhost:3000/reset-password/${resetLink}`;
         sendeEmail(resetTemplate, email, resetURL, userName);
 
         res.status(201).json({
@@ -167,24 +170,6 @@ exports.forgetPassword = async (req, res) => {
         res.status(500).json({
             status: 'error',
             message: err.message,
-        });
-    }
-};
-exports.getResetPassword = async (req, res) => {
-    try {
-        const hashedLink = crypto.createHash('sha256').update(req.params.resetlink).digest('hex');
-        const foundedUser = await User.findOne({
-            passwordResetString: hashedLink,
-            passwordResetExpires: { $gt: Date.now() },
-        });
-        if (!foundedUser) return res.status(400).json({ message: 'Reset link is invalid or has been expired' });
-        // (In Production) return res.redirect('/error');
-        res.status(200).json({ status: 'success', message: 'Enter your new password', data: { foundedUser } });
-        // (In Production) res.render('resetPassword', { resetLink: req.params.resetlink });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            err: err.message,
         });
     }
 };

@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-const sendeEmail = async (templateUsed, email, link, userName) => {
+const sendeEmail = async (templateUsed, email, link, userName, pageLink) => {
     // 1-)CREATE TRANSPORTER
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -14,7 +14,7 @@ const sendeEmail = async (templateUsed, email, link, userName) => {
         from: process.env.NODEMAILER_EMAIL,
         to: email,
         subject: 'Readify email service',
-        html: templateUsed(link, userName),
+        html: templateUsed(link, userName, pageLink),
     };
     // 3-)SEND AN EMAIL
     await transporter.sendMail(mailOptions);
