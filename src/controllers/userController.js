@@ -7,17 +7,15 @@ const { uploadToCloudinary } = require('../services/cloudinary');
 exports.updatePassword = async (req, res) => {
     try {
         // 1-FIND USER
-        const user = await User.findById(req.user.id).select('+password');
-        // 2-CHECK IF PROVIDED PASSWORD CORRECT
-        const passwordMatch = bcrypt.compareSync(req.body.oldPassword, user.password);
-        if (!passwordMatch) return res.status(404).json({ status: 'fail', message: 'Old password is not correct!' });
-        // 3-UPDATE PASSWORD
+        const { user } = req;
+        // 2-UPDATE PASSWORD
         const hashedPassword = await bcrypt.hash(req.body.newPassword, Number(process.env.BCRYPT_SALT));
         user.password = hashedPassword;
         await user.save();
-        // 4-CREATE AND SEND TOKEN
+        // 3-CREATE AND SEND TOKEN
         createandSendToken(user, user._id, process.env.JWT_EXPIRES_IN, 200, res);
     } catch (err) {
+        console.log(err);
         res.status(500).json({
             status: 'error',
             err: err.message,

@@ -9,17 +9,6 @@ const {
 
 const couponRouter = express.Router();
 
-// couponRouter.post('/', isAuthenticated, isAdmin, createCoupon);
-
-// couponRouter.get('/', isAuthenticated, isAdmin, getAllCoupons);
-
-// couponRouter.patch('/:couponId', isAuthenticated, isAdmin, updateCoupon);
-
-// couponRouter.delete('/:couponId', isAuthenticated, isAdmin, deletedCoupon);
-
-// couponRouter.post('/applyCoupon', isAuthenticated, applyCoupon);
-
-
 couponRouter.post('/', createCoupon);
 
 couponRouter.get('/',getAllCoupons);

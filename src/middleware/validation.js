@@ -13,8 +13,8 @@ exports.validation = (schema) => {
             }
         });
         if (errors.length) {
-            res.json({
-                message: 'validation error',
+            res.status(400).json({
+                message: errors[0][0].message,
                 err: errors,
             });
         } else {
