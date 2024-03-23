@@ -74,3 +74,27 @@ exports.getAllUsers = async (req, res) => {
         });
     }
 };
+
+exports.deleteUserById = async (req, res) => {
+    try {
+        const { id } = req.params; // Get the user ID from request parameters
+        const deletedUser = await User.findByIdAndDelete(id); // Find and delete the user by ID
+        if (!deletedUser) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'User not found',
+            });
+        }
+        res.status(200).json({
+            status: 'success',
+            message: 'User deleted successfully',
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            error: err.message,
+        });
+    }
+};
+
+

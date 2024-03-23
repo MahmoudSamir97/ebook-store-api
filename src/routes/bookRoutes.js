@@ -21,10 +21,14 @@ bookRouter.post(
 );
 bookRouter.get('/AllBook', getAllBooks);
 bookRouter.delete('/:bookId', deleteBook);
-bookRouter.put('/:bookId', upload.fields([
-    { name: 'bookPdf', maxCount: 1 },
-    { name: 'bookImage', maxCount: 1 },
-]), updateBook);
+bookRouter.put(
+    '/:bookId',
+    upload.fields([
+        { name: 'bookPdf', maxCount: 1 },
+        { name: 'bookImage', maxCount: 1 },
+    ]),
+    updateBook
+);
 bookRouter.get('/search', searchBooksByPrice);
 bookRouter.get('/:bookId', getBookById);
 bookRouter.get('/getAllBookInCategory/:categoryId', getCategoryWithBook);

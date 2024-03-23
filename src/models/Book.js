@@ -14,13 +14,13 @@ const bookSchema = new mongoose.Schema(
             required: [true, 'book price is required'],
             trim: true,
         },
-    discount: {
-        type: Number,
-    },
-    priceAfterDiscount: {
-        type: Number,
-        default: 0,
-    },
+        discount: {
+            type: Number,
+        },
+        priceAfterDiscount: {
+            type: Number,
+            default: 0,
+        },
         Author: {
             type: String,
             required: [true, 'Author Name is required'],
@@ -42,25 +42,24 @@ const bookSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Publisher',
         },
-        bookDescription:{
-            type : String,
+        bookDescription: {
+            type: String,
             minlength: [10, 'Too short book description'],
             maxlength: [1000, 'Too long book description'],
-
         },
         averageRating: {
             type: Number,
             default: 0,
-          },
-          numOfReviews: {
+        },
+        numOfReviews: {
             type: Number,
             default: 0,
-          },
-          user: {
+        },
+        user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
-          },
+            // required: true,
+        },
     },
     {
         timestamps: true,
@@ -70,17 +69,17 @@ const bookSchema = new mongoose.Schema(
 );
 
 // If I want to search single product, in tha product I also want to have all reviews associated with that product.
-bookSchema.virtual("reviews", {
-    ref: "Review",
-    localField: "_id",
-    foreignField: "book",
+bookSchema.virtual('reviews', {
+    ref: 'Review',
+    localField: '_id',
+    foreignField: 'book',
     justOne: false,
-  })
+});
 
-  bookSchema.pre("remove", async function (next) {
+bookSchema.pre('remove', async function (next) {
     // Go to 'Reveiw; and delete all the review that are associated with this particular product
-    await this.model("Review").deleteMany({ book: this._id })
-  })
+    await this.model('Review').deleteMany({ book: this._id });
+});
 const bookModel = mongoose.model('Book', bookSchema);
 
 module.exports = bookModel;

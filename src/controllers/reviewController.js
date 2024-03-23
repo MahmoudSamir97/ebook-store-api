@@ -1,8 +1,8 @@
-const Review = require("../models/reviewModel");
-const Book = require("../models/Book");
+const Review = require('../models/reviewModel');
+const Book = require('../models/Book');
 
 const createReview = async (req, res) => {
-    const { rating, title, comment, book  } = req.body; // Changed 'Book' to 'book'
+    const { rating, comment, book } = req.body; // Changed 'Book' to 'book'
     try {
         const bookExist = await Book.findById(book); // Changed 'Book' to 'book'
         if (!bookExist) {
@@ -15,16 +15,16 @@ const createReview = async (req, res) => {
         if (alreadyReviewed) {
             return res.status(400).json({ msg: 'already reviewed' });
         }
-        if (!rating || !title || !comment || !book) { // Changed 'Book' to 'book'
+        if (!rating ||  !comment || !book) {
+            // Changed 'Book' to 'book'
             return res.status(400).json({ msg: 'fill all the credentials' });
         }
         const reviewData = {
             rating,
-            title,
+    
             comment,
-            book:req.body.book, // Changed 'Book' to 'book'
+            book: req.body.book, // Changed 'Book' to 'book'
             user: req.body.user,
-
         };
         const review = await Review.create(reviewData);
         return res.status(201).json({
@@ -89,23 +89,23 @@ const deleteReview = async (req, res) => {
     try {
         const { reviewId } = req.params;
 
-    const review = await Review.findById(reviewId);
+        const review = await Review.findById(reviewId);
 
-    if (!review) {
-        return res.status(404).json({
-            success: false,
-            error: 'Review not found',
-        });
+        if (!review) {
+            return res.status(404).json({
+                success: false,
+                error: 'Review not found',
+            });
         }
-    await review.deleteOne();
-    res.status(200).json({ msg: 'Success! Review removed' });
+        await review.deleteOne();
+        res.status(200).json({ msg: 'Success! Review removed' });
     } catch (error) {
         return res.status(400).json({
             success: false,
             error: error.message,
         });
     }
-  };
+};
 
 const getAllReviews = async (req, res) => {
     try {
@@ -151,12 +151,11 @@ const getSingleBookReviews = async (req, res) => {
     }
 };
 
-
 module.exports = {
     createReview,
     updateReview,
     getAllReviews,
     getSingleReview,
     deleteReview,
-    getSingleBookReviews
+    getSingleBookReviews,
 };
