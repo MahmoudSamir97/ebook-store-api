@@ -21,3 +21,17 @@ exports.getAllContacts = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+exports.deleteContactById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedContact = await Contact.findByIdAndDelete(id);
+        if (!deletedContact) {
+            return res.status(404).json({ message: 'Contact not found' });
+        }
+        res.status(200).json(deletedContact);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
