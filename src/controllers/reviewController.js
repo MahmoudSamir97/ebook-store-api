@@ -2,7 +2,7 @@ const Review = require('../models/reviewModel');
 const Book = require('../models/Book');
 
 const createReview = async (req, res) => {
-    const { rating, title, comment, book } = req.body; // Changed 'Book' to 'book'
+    const { rating, comment, book } = req.body; // Changed 'Book' to 'book'
     try {
         const bookExist = await Book.findById(book); // Changed 'Book' to 'book'
         if (!bookExist) {
@@ -15,13 +15,13 @@ const createReview = async (req, res) => {
         if (alreadyReviewed) {
             return res.status(400).json({ msg: 'already reviewed' });
         }
-        if (!rating || !title || !comment || !book) {
+        if (!rating ||  !comment || !book) {
             // Changed 'Book' to 'book'
             return res.status(400).json({ msg: 'fill all the credentials' });
         }
         const reviewData = {
             rating,
-            title,
+    
             comment,
             book: req.body.book, // Changed 'Book' to 'book'
             user: req.body.user,

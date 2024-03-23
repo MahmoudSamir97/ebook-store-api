@@ -5,6 +5,8 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const { rateLimit } = require('express-rate-limit');
+const contactRouter = require('./src/routes/contactUsRouter.js');
+
 const app = express();
 // socket.io
 const server = require('http').createServer(app);
@@ -56,5 +58,7 @@ app.use('/review', reviewRouter);
 app.use('/copoun', couponRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/stripe', stripeRouter);
+
+app.use('/contact', contactRouter);
 
 module.exports = server;
