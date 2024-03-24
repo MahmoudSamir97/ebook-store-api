@@ -21,8 +21,6 @@ exports.createCoupon = async (req, res) => {
     }
 };
 
-
-
 exports.getAllCoupons = async (req, res) => {
     try {
         const coupons = await couponModel.find();
@@ -71,10 +69,8 @@ exports.updateCoupon = async (req, res) => {
     }
 };
 
-
 exports.deletedCoupon = async (req, res) => {
     try {
-
         const couponId = req.params.couponId;
         const coupon = await couponModel.findById(couponId);
 
@@ -93,7 +89,6 @@ exports.deletedCoupon = async (req, res) => {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
     }
 };
-
 
 exports.applyCoupon = async (req, res) => {
     try {
