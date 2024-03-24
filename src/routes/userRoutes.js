@@ -5,7 +5,6 @@ const {
     updateUserData,
     deleteUser,
     deleteUserById,
-
 } = require('../controllers/userController');
 const isAuthenticated = require('../middleware/isAuthenticated');
 const upload = require('../middleware/multer');
@@ -13,9 +12,7 @@ const { validation } = require('../middleware/validation');
 const resetSchema = require('../validations/resetPasswordSchema');
 const updateDataSchema = require('../validations/updateDataSchema');
 const updatePassMiddleware = require('../middleware/changePasswordMiddleware');
-
 userRouter.get('/', getAllUsers);
-
 userRouter.patch('/update-Password', isAuthenticated, updatePassMiddleware, validation(resetSchema), updatePassword);
 userRouter.patch(
     '/update-data',
