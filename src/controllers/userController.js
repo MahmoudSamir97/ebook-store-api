@@ -3,6 +3,7 @@ const dataurl = require('dataurl');
 const User = require('../models/userModel');
 const { createandSendToken } = require('../utils/createandSendToken');
 const { uploadToCloudinary } = require('../services/cloudinary');
+const sendVerifyEmail = require('../services/sendVerifyEmail');
 
 exports.updatePassword = async (req, res) => {
     try {
@@ -34,6 +35,10 @@ exports.updateUserData = async (req, res) => {
             user.image.url = result.secure_url;
             user.image.public_id = result.public_id;
             await user.save();
+        }
+        // IF EMAIL CHANGED. SEND VERIFICATION EMAIL
+        if (req.body.email) {
+            sendVerifyEmail(user);
         }
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
@@ -96,5 +101,3 @@ exports.deleteUserById = async (req, res) => {
         });
     }
 };
-
-

@@ -1,11 +1,10 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const sendeEmail = require('../services/sendEmail');
 const createToken = require('../utils/createToken');
-const verifyTemplate = require('../utils/verifyTemplate');
 const resetTemplate = require('../utils/resetTemplate');
+const sendVerifyEmail = require('../services/sendVerifyEmail');
 
 exports.signup = async (req, res) => {
     try {
@@ -21,12 +20,12 @@ exports.signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
         const newUser = await User.create({ ...req.body, password: hashedPassword });
         // 3-) SEND VERIFICATION STRING THROUGH EMAIL
-        const { _id, userName, email } = newUser;
-        const token = createToken(_id, process.env.JWT_EXPIRES_IN);
-        const verifyURL = `http://127.0.0.1:${process.env.PORT}/auth/verify/${token}`;
-        const loginUrl = 'http://localhost:3000/login';
-
-        sendeEmail(verifyTemplate, email, verifyURL, userName, loginUrl);
+        // const { _id, userName, email } = newUser;
+        // const token = createToken(_id, process.env.JWT_EXPIRES_IN);
+        // const verifyURL = `http://127.0.0.1:${process.env.PORT}/auth/verify/${token}`;
+        // const loginUrl = 'http://localhost:3000/login';
+        // sendeEmail(verifyTemplate, email, verifyURL, userName, loginUrl);
+        sendVerifyEmail(newUser);
         res.status(201).json({
             status: 'success',
             message: 'verification link has been sent to your email',
@@ -95,6 +94,7 @@ exports.login = async (req, res) => {
         return res.status(200).json({
             status: 'success',
             token,
+            registeredUser,
             message: 'Logged in successfully!',
         });
     } catch (err) {

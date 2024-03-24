@@ -22,7 +22,6 @@ exports.getAllContacts = async (req, res) => {
     }
 };
 
-
 exports.deleteContactById = async (req, res) => {
     try {
         const { id } = req.params;
