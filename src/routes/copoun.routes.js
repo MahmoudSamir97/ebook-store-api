@@ -6,19 +6,17 @@ const {
     deletedCoupon,
     applyCoupon,
 } = require('../controllers/copoun.controller');
-const isAdmin = require('../middleware/isAdmin');
-const isAuthenticated = require('../middleware/isAuthenticated');
 
 const couponRouter = express.Router();
 
-couponRouter.post('/', isAuthenticated, isAdmin, createCoupon);
+couponRouter.post('/', createCoupon);
 
-couponRouter.get('/', isAuthenticated, isAdmin, getAllCoupons);
+couponRouter.get('/', getAllCoupons);
 
-couponRouter.patch('/:couponId', isAuthenticated, isAdmin, updateCoupon);
+couponRouter.patch('/:couponId', updateCoupon);
 
-couponRouter.delete('/:couponId', isAuthenticated, isAdmin, deletedCoupon);
+couponRouter.delete('/:couponId', deletedCoupon);
 
-couponRouter.post('/applyCoupon', isAuthenticated, applyCoupon);
+couponRouter.post('/applyCoupon', applyCoupon);
 
 module.exports = couponRouter;

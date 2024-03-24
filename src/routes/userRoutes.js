@@ -1,11 +1,18 @@
 const userRouter = require('express').Router();
-const { getAllUsers, updatePassword, updateUserData, deleteUser, getUser } = require('../controllers/userController');
-const updatePassMiddleware = require('../middleware/changePasswordMiddleware');
+const {
+    getAllUsers,
+    updatePassword,
+    updateUserData,
+    deleteUser,
+    deleteUserById,
+    getUser,
+} = require('../controllers/userController');
 const isAuthenticated = require('../middleware/isAuthenticated');
 const upload = require('../middleware/multer');
 const { validation } = require('../middleware/validation');
 const resetSchema = require('../validations/resetPasswordSchema');
 const updateDataSchema = require('../validations/updateDataSchema');
+const updatePassMiddleware = require('../middleware/changePasswordMiddleware');
 
 userRouter.get('/', getAllUsers);
 userRouter.get('/data', isAuthenticated, getUser);
@@ -18,5 +25,7 @@ userRouter.patch(
     updateUserData
 );
 userRouter.delete('/delete', isAuthenticated, deleteUser);
+
+userRouter.delete('/:id', deleteUserById);
+
 module.exports = userRouter;
-// upload.single('profileImage'),

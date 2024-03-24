@@ -3,9 +3,6 @@ const dataurl = require('dataurl');
 const User = require('../models/userModel');
 const { createandSendToken } = require('../utils/createandSendToken');
 const { uploadToCloudinary } = require('../services/cloudinary');
-const cloudinary = require('../services/Cloudinary');
-const sendeEmail = require('../services/sendEmail');
-const verifyTemplate = require('../utils/verifyTemplate');
 const sendVerifyEmail = require('../services/sendVerifyEmail');
 
 exports.updatePassword = async (req, res) => {
@@ -82,18 +79,25 @@ exports.getAllUsers = async (req, res) => {
         });
     }
 };
-exports.getUser = async (req, res) => {
+
+exports.deleteUserById = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
-        if (!user) return res.status(404).json({ status: 'fail', message: 'User not found!' });
+        const { id } = req.params; // Get the user ID from request parameters
+        const deletedUser = await User.findByIdAndDelete(id); // Find and delete the user by ID
+        if (!deletedUser) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'User not found',
+            });
+        }
         res.status(200).json({
             status: 'success',
-            data: { user },
+            message: 'User deleted successfully',
         });
     } catch (err) {
         res.status(500).json({
             status: 'error',
-            err: err.message,
+            error: err.message,
         });
     }
 };

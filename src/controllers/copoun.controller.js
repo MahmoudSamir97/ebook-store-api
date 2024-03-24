@@ -3,11 +3,11 @@ const cartModel = require('../models/cart.model');
 
 exports.createCoupon = async (req, res) => {
     try {
-        if (!req.user.id) {
-            return res
-                .status(401)
-                .json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
-        }
+        // if (!req.user.id) {
+        //     return res
+        //         .status(401)
+        //         .json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
+        // }
         const newCoupon = new couponModel({
             couponCode: req.body.couponCode,
             couponValue: req.body.couponValue,
@@ -32,11 +32,11 @@ exports.getAllCoupons = async (req, res) => {
 
 exports.updateCoupon = async (req, res) => {
     try {
-        if (!req.user.id) {
-            return res
-                .status(401)
-                .json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
-        }
+        // if (!req.user.id) {
+        //     return res
+        //         .status(401)
+        //         .json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
+        // }
         const couponId = req.params.couponId;
         const { couponCode, couponValue, expireIn } = req.body;
 
@@ -71,12 +71,6 @@ exports.updateCoupon = async (req, res) => {
 
 exports.deletedCoupon = async (req, res) => {
     try {
-        if (!req.user.id) {
-            return res
-                .status(401)
-                .json({ status: 'FAIL', data: { message: 'You do not have permission to create Coupon' } });
-        }
-
         const couponId = req.params.couponId;
         const coupon = await couponModel.findById(couponId);
 
@@ -84,12 +78,12 @@ exports.deletedCoupon = async (req, res) => {
             return res.status(404).json({ status: 'FAIL', data: { message: 'Coupon not found' } });
         }
         // Use findOneAndUpdate to update the deletedBy field without actually deleting the coupon
-        const deletedCoupon = await couponModel.findOneAndUpdate({ _id: couponId }, { new: true });
+        const deletedCoupon = await couponModel.findOneAndDelete({ _id: couponId });
 
         res.status(200).json({
             status: 'SUCCESS',
             data: deletedCoupon,
-            message: 'Coupon marked as deleted successfully',
+            message: 'Coupon deleted successfully',
         });
     } catch (error) {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
