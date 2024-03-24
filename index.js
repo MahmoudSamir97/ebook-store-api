@@ -8,15 +8,6 @@ const { rateLimit } = require('express-rate-limit');
 const contactRouter = require('./src/routes/contactUsRouter.js');
 
 const app = express();
-// socket.io
-const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-        origin: process.env.CLIENT_URL,
-        methods: ['GET', 'POST'],
-    },
-});
-//
 const categoryRouter = require('./src/routes/category.routes');
 const bookRouter = require('./src/routes/bookRoutes.js');
 const cartRouter = require('./src/routes/cart.routes.js');
@@ -59,6 +50,4 @@ app.use('/copoun', couponRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/stripe', stripeRouter);
 
-app.use('/contact', contactRouter);
-
-module.exports = server;
+module.exports = app;

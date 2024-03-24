@@ -15,13 +15,13 @@ const createReview = async (req, res) => {
         if (alreadyReviewed) {
             return res.status(400).json({ msg: 'already reviewed' });
         }
-        if (!rating ||  !comment || !book) {
+        if (!rating || !comment || !book) {
             // Changed 'Book' to 'book'
             return res.status(400).json({ msg: 'fill all the credentials' });
         }
         const reviewData = {
             rating,
-    
+
             comment,
             book: req.body.book, // Changed 'Book' to 'book'
             user: req.body.user,

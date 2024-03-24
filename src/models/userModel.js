@@ -57,14 +57,6 @@ const userSchema = new mongoose.Schema(
             default: false,
             select: false,
         },
-        newMessages: {
-            type: Object,
-            default: {},
-        },
-        status: {
-            type: String,
-            default: 'online',
-        },
         passwordResetString: String,
         passwordResetExpires: Date,
     },
