@@ -3,6 +3,10 @@ const dataurl = require('dataurl');
 const User = require('../models/userModel');
 const { createandSendToken } = require('../utils/createandSendToken');
 const { uploadToCloudinary } = require('../services/cloudinary');
+const cloudinary = require('../services/Cloudinary');
+const sendeEmail = require('../services/sendEmail');
+const verifyTemplate = require('../utils/verifyTemplate');
+const sendVerifyEmail = require('../services/sendVerifyEmail');
 
 exports.updatePassword = async (req, res) => {
     try {
@@ -35,6 +39,10 @@ exports.updateUserData = async (req, res) => {
             user.image.public_id = result.public_id;
             await user.save();
         }
+        // IF EMAIL CHANGED. SEND VERIFICATION EMAIL
+        if (req.body.email) {
+            sendVerifyEmail(user);
+        }
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
             { ...req.body },
@@ -66,6 +74,21 @@ exports.getAllUsers = async (req, res) => {
         res.status(200).json({
             status: 'success',
             data: { users },
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
+        });
+    }
+};
+exports.getUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ status: 'fail', message: 'User not found!' });
+        res.status(200).json({
+            status: 'success',
+            data: { user },
         });
     } catch (err) {
         res.status(500).json({

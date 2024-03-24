@@ -6,15 +6,6 @@ const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const { rateLimit } = require('express-rate-limit');
 const app = express();
-// socket.io
-const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-        origin: process.env.CLIENT_URL,
-        methods: ['GET', 'POST'],
-    },
-});
-//
 const categoryRouter = require('./src/routes/category.routes');
 const bookRouter = require('./src/routes/bookRoutes.js');
 const cartRouter = require('./src/routes/cart.routes.js');
@@ -53,4 +44,4 @@ app.use('/copoun', couponRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/stripe', stripeRouter);
 
-module.exports = server;
+module.exports = app;
