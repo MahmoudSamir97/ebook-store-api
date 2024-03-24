@@ -6,7 +6,6 @@ const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const { rateLimit } = require('express-rate-limit');
 const contactRouter = require('./src/routes/contactUsRouter.js');
-
 const app = express();
 const categoryRouter = require('./src/routes/category.routes');
 const bookRouter = require('./src/routes/bookRoutes.js');
@@ -14,10 +13,9 @@ const cartRouter = require('./src/routes/cart.routes.js');
 const reviewRouter = require('./src/routes/reviewRoutes.js');
 const couponRouter = require('./src/routes/copoun.routes.js');
 const wishlistRouter = require('./src/routes/wishlist.routes.js');
-
 const authRouter = require('./src/routes/authRoutes.js');
-const userRouter = require('./src/routes/userRoutes.js');
 const stripeRouter = require('./src/routes/stripeRoutes.js');
+const userRouter = require('./src/routes/userRoutes.js');
 
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 60 minutes
@@ -49,5 +47,6 @@ app.use('/review', reviewRouter);
 app.use('/copoun', couponRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/stripe', stripeRouter);
+app.use('/contact', contactRouter);
 
 module.exports = app;

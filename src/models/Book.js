@@ -76,7 +76,7 @@ bookSchema.virtual('reviews', {
     justOne: false,
 });
 
-bookSchema.pre('remove', async function (next) {
+bookSchema.pre('remove', async function () {
     // Go to 'Reveiw; and delete all the review that are associated with this particular product
     await this.model('Review').deleteMany({ book: this._id });
 });
