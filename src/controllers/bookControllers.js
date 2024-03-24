@@ -111,8 +111,7 @@ exports.getAllBooks = async (req, res) => {
     try {
         const query = req.query;
         console.log('query', query);
-
-        const limit = query.limit || 20;
+        const limit = query.limit || 30;
         const page = query.page || 1;
         const skip = (page - 1) * limit;
 
