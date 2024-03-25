@@ -1,23 +1,26 @@
 const stripe = require('stripe')(process.env.STRIPE_KEY);
+const cartModel = require('../models/cart.model');
 const createOrder = require('../utils/createOrder');
 let endpointSecret;
 
 exports.pay = async (req, res) => {
+    const { cartItems } = req.body;
+    console.log(cartItems);
+    const objectIdString = req.user._id.toString();
     const customer = await stripe.customers.create({
         metadata: {
-            userId: req.body.userId,
-            cart: JSON.stringify(req.body.cartItems),
+            userId: objectIdString,
+            cart: JSON.stringify(cartItems),
         },
     });
-    const { cartItems } = req.body;
     const line_items = cartItems.map((item) => {
         return {
             price_data: {
-                currency: 'usd',
-                unit_amount: item.price * 100,
+                currency: 'egp',
+                unit_amount: item.bookPrice * 100,
                 product_data: {
-                    name: item.name,
-                    images: [item.image],
+                    name: item.bookTitle,
+                    images: [item.bookImage],
                 },
             },
             quantity: 1,
@@ -31,6 +34,16 @@ exports.pay = async (req, res) => {
         cancel_url: `${process.env.CLIENT_URL}/cart`,
     });
     res.send({ url: session.url });
+    // LOGIC
+    let cart = await cartModel.findOne({ userId: req.user._id });
+    if (!cart) {
+        cart = await cartModel.create({ userId: req.user._id, cartItems: [] });
+    }
+    // const existingItem = cart.cartItems.find((item) => item.bookTitle === bookTitle);
+    cart.cartItems = cartItems;
+    await cart.save();
+
+    // LOGIC
 };
 exports.webHookFn = (req, res) => {
     const sig = req.headers['stripe-signature'];

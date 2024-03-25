@@ -2,7 +2,6 @@ const { Schema, Types, model } = require('mongoose');
 
 const CartSchema = new Schema(
     {
-        // registered user
         userId: {
             type: Types.ObjectId,
             ref: 'User',
@@ -12,14 +11,19 @@ const CartSchema = new Schema(
         paymentIntentId: String,
         paymentStatus: {
             type: String,
-            required: true,
         },
         cartItems: [
             {
+                bookTitle: String,
+                bookPrice: String,
+                bookImage: String,
                 name: {
                     type: String,
                 },
                 price: {
+                    type: String,
+                },
+                image: {
                     type: String,
                 },
             },
@@ -36,6 +40,5 @@ const CartSchema = new Schema(
         toObject: { virtuals: true },
     }
 );
-
 const cartModel = model('Cart', CartSchema);
 module.exports = cartModel;

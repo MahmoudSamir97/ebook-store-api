@@ -16,6 +16,8 @@ const wishlistRouter = require('./src/routes/wishlist.routes.js');
 const authRouter = require('./src/routes/authRoutes.js');
 const stripeRouter = require('./src/routes/stripeRoutes.js');
 const userRouter = require('./src/routes/userRoutes.js');
+const cartcpyRouter = require('./src/routes/cartcpyRoutes.js');
+const purchasedRouter = require('./src/routes/purchasedRoutes.js');
 
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 60 minutes
@@ -43,10 +45,12 @@ app.use('/user', userRouter);
 app.use('/book', bookRouter);
 app.use('/category', categoryRouter);
 app.use('/cart', cartRouter);
+app.use('/cartcpy', cartcpyRouter);
 app.use('/review', reviewRouter);
 app.use('/copoun', couponRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/stripe', stripeRouter);
 app.use('/contact', contactRouter);
+app.use('/purchased', purchasedRouter);
 
 module.exports = app;

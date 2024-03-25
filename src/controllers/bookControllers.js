@@ -2,6 +2,14 @@ const bookModel = require('../models/Book');
 const dataurl = require('dataurl');
 const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudinary');
 const categoryModel = require('../models/category.model');
+// Cloudinary
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+//
 exports.addBook = async (req, res) => {
     try {
         const { bookTitle, bookPrice, Author, category, publisherName, bookDescription, user, discount } = req.body;
@@ -17,7 +25,9 @@ exports.addBook = async (req, res) => {
             const discountAmount = (bookPrice * discount) / 100;
             priceAfterDiscount = bookPrice - discountAmount;
         }
-
+        const originalFile = req.files.bookPdf[0].originalname;
+        const name = originalFile.slice(0, originalFile.indexOf('.'));
+        console.log(name);
         const bookPdfDataUrlString = dataurl.format({
             data: req.files.bookPdf[0].buffer,
             mimetype: req.files.bookPdf[0].mimetype,
@@ -28,8 +38,12 @@ exports.addBook = async (req, res) => {
             mimetype: req.files.bookImage[0].mimetype,
         });
         const uploadedBookImage = await uploadToCloudinary(bookImageDataUrlString, 'book image');
-        const uploadedBookPdf = await uploadToCloudinary(bookPdfDataUrlString, 'pdf');
-
+        const uploadedBookPdf = await cloudinary.uploader.upload(bookPdfDataUrlString, {
+            // transformation: { flags: `attachment:${name}`, fetch_format: 'auto' },
+            format: 'pdf',
+            access_mode: 'public',
+        });
+        console.log(uploadedBookPdf);
         const newBook = new bookModel({
             bookTitle,
             bookPrice,
