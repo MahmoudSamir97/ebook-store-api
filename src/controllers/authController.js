@@ -9,6 +9,7 @@ const sendVerifyEmail = require('../services/sendVerifyEmail');
 exports.signup = async (req, res) => {
     try {
         //1-) CHECK IF USER REGISTERED BEFORE
+        console.log('hello');
         const { password } = req.body;
         const foundedUser = await User.findOne({ email: req.body.email });
         if (foundedUser)
