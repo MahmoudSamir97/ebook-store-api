@@ -102,6 +102,14 @@ exports.searchBooksByPrice = async (req, res) => {
         res.status(500).json({ status: 'error', message: error.message, data: null });
     }
 };
+exports.getRecentBooks = async (req, res) => {
+    try {
+        const recentBooks = await bookModel.find({ isRecent: true });
+        res.status(200).json({ status: 'Done', data: { recentBooks } });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message, data: null });
+    }
+};
 exports.getBookById = async (req, res) => {
     try {
         const bookId = req.params.bookId;

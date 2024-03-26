@@ -63,6 +63,7 @@ exports.login = async (req, res) => {
         // 1-) check if user has been registered
         const { email, password } = req.body;
         const registeredUser = await User.findOne({ email }).select('+password');
+        console.log(registeredUser);
         if (!registeredUser)
             return res.status(404).json({
                 status: 'fail',
@@ -73,7 +74,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({ status: 'fail', message: 'You should verify your account before logging!' });
         // 3-) check if user account is deactivated
         if (registeredUser.isDeleted)
-            return res.status(404).json({ status: 'fail', message: 'Your account is Deleted!' });
+            return res.status(404).json({ status: 'fail', message: 'Your account is Deleted!,please contact admin' });
         // 4-) check if provided password is correct
         const passwordMatch = bcrypt.compareSync(password, registeredUser.password);
         if (!passwordMatch)
@@ -183,6 +184,31 @@ exports.resetPassword = async (req, res) => {
         user.password = hashedPassword;
         await user.save();
         res.status(200).json({ status: 'success', message: 'New Password added successfully!' });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
+        });
+    }
+};
+exports.getDeactivated = async (req, res) => {
+    try {
+        const deactivatedAccounts = await User.find({ isDeleted: true });
+        res.status(200).json({ status: 'success', deactivatedAccounts });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
+        });
+    }
+};
+exports.postDeactivated = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const foundedUser = await User.findById(userId);
+        foundedUser.isDeleted = false;
+        await foundedUser.save();
+        res.status(200).json({ status: 'success', message: 'Done!' });
     } catch (err) {
         res.status(500).json({
             status: 'error',

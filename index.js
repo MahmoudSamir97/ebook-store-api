@@ -30,7 +30,7 @@ app.use(cors());
 // 1-)FOR SECURE HTTP HEADERS
 app.use(helmet());
 // 2-)PREVENT TOO MANY REQUESTS FROM THE SAME IP
-app.use(limiter);
+// app.use(limiter);
 // 3-)BODY PARSER
 app.use(express.json());
 // 4-)DATA SANITAZTION AGAINST NoSql injection

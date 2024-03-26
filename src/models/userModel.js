@@ -55,7 +55,6 @@ const userSchema = new mongoose.Schema(
         isDeleted: {
             type: Boolean,
             default: false,
-            select: false,
         },
         passwordResetString: String,
         passwordResetExpires: Date,
@@ -63,9 +62,9 @@ const userSchema = new mongoose.Schema(
     { minimize: false }
 );
 // PRE HOOK, NOT RETRIEVE USERS WITH DELETED ACCOUNT
-userSchema.pre(/^find/, function () {
-    this.find({ isDeleted: false });
-});
+// userSchema.pre(/^find/, function () {
+//     this.find({ isDeleted: false });
+// });
 // MONGOOSE SCHEMA METHODS FIELD
 userSchema.methods.creatResetRandomString = function () {
     const resetString = crypto.randomBytes(32).toString('hex');
