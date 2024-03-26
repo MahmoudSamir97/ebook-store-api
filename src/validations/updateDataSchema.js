@@ -2,6 +2,8 @@ const joi = require('joi');
 
 const updateDataSchema = {
     body: joi.object({
+        firstName: joi.string(),
+        lastName: joi.string(),
         userName: joi
             .string()
             .pattern(new RegExp(/^[A-Z]{1}[A-Za-z]{8,}[0-9@#$%^&*]{2,}$/))
@@ -20,6 +22,7 @@ const updateDataSchema = {
             url: joi.string(),
             public_id: joi.string(),
         }),
+        isDeleted: joi.boolean(),
     }),
 };
 
