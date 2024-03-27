@@ -22,8 +22,6 @@ const bookSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true,
-            minlength: [3, 'Too short book title'],
-            maxlength: [150, 'Too long book title'],
         },
         bookPrice: {
             type: Number,
@@ -64,8 +62,6 @@ const bookSchema = new mongoose.Schema(
         },
         bookDescription: {
             type: String,
-            minlength: [10, 'Too short book description'],
-            maxlength: [1000, 'Too long book description'],
         },
         reviews: [reviewSchema],
         numReviews: { type: Number, default: 0 },
