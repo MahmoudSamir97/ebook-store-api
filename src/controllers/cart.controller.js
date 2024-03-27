@@ -81,18 +81,23 @@ exports.getUserCart = async (req, res) => {
 };
 exports.getAllCarts = async (req, res) => {
     try {
-        // Find the user's cart and populate all details of the books
-        const cart = await cartModel.find();
+        // Find all carts and populate the userId field
+        const carts = await cartModel.find().populate({
+            path: 'userId',
+            model: 'User',
+        });
 
-        // Check if the cart exists
-        if (cart.length === 0) {
-            return res.status(404).json({ error: 'Cart not found' });
+        // Check if any carts exist
+        if (carts.length === 0) {
+            return res.status(404).json({ error: 'Carts not found' });
         }
-        res.status(200).json({ status: 'success', cart });
+
+        res.status(200).json({ status: 'success', carts });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 exports.removeItemFromCart = async (req, res) => {
     try {

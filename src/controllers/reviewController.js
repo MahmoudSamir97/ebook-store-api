@@ -45,7 +45,7 @@ const createReview = async (req, res) => {
 //         if (!review) {
 //             return res.status(404).json({
 //                 success: false,
-//                 error: `Review with id ${reviewId} not found`,
+//                 error: Review with id ${reviewId} not found,
 //             });
 //         }
 //         await review.remove(); // Remove the review from the database

@@ -7,12 +7,14 @@ const {
     getSingleReview,
     getSingleBookReviews,
 } = require('../controllers/reviewController');
+const isAuthenticated = require('../middleware/isAuthenticated');
+
 const reviewRouter = express.Router();
-reviewRouter.post('/', createReview);
-reviewRouter.get('/', getAllReviews);
-reviewRouter.delete('/:reviewId', deleteReview);
-reviewRouter.put('/:reviewId', updateReview);
-reviewRouter.get('/getbyid/:reviewId', getSingleReview);
+reviewRouter.post('/', isAuthenticated,createReview);
+reviewRouter.get('/',isAuthenticated, getAllReviews);
+reviewRouter.delete('/:reviewId',isAuthenticated, deleteReview);
+reviewRouter.put('/:reviewId',isAuthenticated, updateReview);
+reviewRouter.get('/getbyid/:reviewId', isAuthenticated,getSingleReview);
 // return all review for specific id of book
-reviewRouter.get('/:bookId', getSingleBookReviews);
+reviewRouter.get('/:bookId',isAuthenticated, getSingleBookReviews);
 module.exports = reviewRouter;

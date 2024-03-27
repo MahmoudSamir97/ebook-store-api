@@ -2,6 +2,7 @@ const bookModel = require('../models/Book');
 const dataurl = require('dataurl');
 const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudinary');
 const categoryModel = require('../models/category.model');
+
 // Cloudinary
 const cloudinary = require('cloudinary').v2;
 cloudinary.config({
@@ -39,7 +40,7 @@ exports.addBook = async (req, res) => {
         });
         const uploadedBookImage = await uploadToCloudinary(bookImageDataUrlString, 'book image');
         const uploadedBookPdf = await cloudinary.uploader.upload(bookPdfDataUrlString, {
-            // transformation: { flags: `attachment:${name}`, fetch_format: 'auto' },
+            // transformation: { flags: attachment:${name}, fetch_format: 'auto' },
             format: 'pdf',
             access_mode: 'public',
         });
@@ -129,12 +130,17 @@ exports.getAllBooks = async (req, res) => {
         const page = query.page || 1;
         const skip = (page - 1) * limit;
 
-        const allBooks = await bookModel.find({}, { __v: false }).limit(limit).skip(skip);
+        const allBooks = await bookModel.find({}, { __v: false })
+                                         .populate('category') // Populate the category field
+                                         .limit(limit)
+                                         .skip(skip);
+
         res.status(200).json({ status: 'Done', data: { allBooks } });
     } catch (error) {
         res.status(500).json({ status: 'error', message: error.message, data: null });
     }
 };
+
 exports.getCategoryWithBook = async (req, res) => {
     try {
         const categoryId = req.params.categoryId;

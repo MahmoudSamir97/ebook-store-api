@@ -72,12 +72,23 @@ exports.updateCategory = async (req, res) => {
 
 exports.getAllCategories = async (req, res) => {
     try {
-        const allCategories = await categoryModel.find();
-        res.status(200).json({ status: 'SUCCESS', data: { allCategories } });
+        const query = req.query;
+        const limit = parseInt(query.limit) || 10; // Default limit is 10 categories per page
+        const page = parseInt(query.page) || 1; // Default page is 1
+        const skip = (page - 1) * limit;
+
+        const allCategories = await categoryModel.find()
+            .limit(limit)
+            .skip(skip);
+
+        const totalCount = await categoryModel.countDocuments(); // Get total count of categories
+
+        res.status(200).json({ status: 'SUCCESS', data: { allCategories, totalCount } });
     } catch (error) {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
     }
 };
+
 
 exports.searchCategory = async (req, res) => {
     try {
