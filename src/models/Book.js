@@ -14,6 +14,10 @@ const bookSchema = new mongoose.Schema(
             required: [true, 'book price is required'],
             trim: true,
         },
+        isRecent: {
+            type: Boolean,
+            default: false,
+        },
         discount: {
             type: Number,
         },

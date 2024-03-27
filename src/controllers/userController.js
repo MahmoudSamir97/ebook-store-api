@@ -103,7 +103,7 @@ exports.deleteUserById = async (req, res) => {
 };
 exports.getUser = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
+        const user = await User.findById(req.user._id).select('+isDeleted');
         if (!user) return res.status(404).json({ status: 'fail', message: 'User not found!' });
         res.status(200).json({
             status: 'success',
