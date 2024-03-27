@@ -1,18 +1,10 @@
-const express = require('express');
-const {
-    createReview,
-    updateReview,
-    deleteReview,
-    getAllReviews,
-    getSingleReview,
-    getSingleBookReviews,
-} = require('../controllers/reviewController');
-const reviewRouter = express.Router();
-reviewRouter.post('/', createReview);
-reviewRouter.get('/', getAllReviews);
-reviewRouter.delete('/:reviewId', deleteReview);
-reviewRouter.put('/:reviewId', updateReview);
-reviewRouter.get('/getbyid/:reviewId', getSingleReview);
-// return all review for specific id of book
-reviewRouter.get('/:bookId', getSingleBookReviews);
+const reviewRouter = require('express').Router({ mergeParams: true });
+const { createReview, getProductReviews } = require('../controllers/reviewController');
+const isAuthenticated = require('../middleware/isAuthenticated');
+
+reviewRouter.post('/', isAuthenticated, createReview);
+reviewRouter.get('/', getProductReviews);
+// reviewRouter.delete('/:reviewId');
+// reviewRouter.put('/:reviewId');
+
 module.exports = reviewRouter;
