@@ -98,7 +98,6 @@ exports.getAllCarts = async (req, res) => {
     }
 };
 
-
 exports.removeItemFromCart = async (req, res) => {
     try {
         const { bookId } = req.params;
