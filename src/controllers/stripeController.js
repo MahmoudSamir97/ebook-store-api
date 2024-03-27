@@ -5,7 +5,6 @@ let endpointSecret;
 
 exports.pay = async (req, res) => {
     const { cartItems } = req.body;
-    console.log(cartItems);
     const objectIdString = req.user._id.toString();
     const customer = await stripe.customers.create({
         metadata: {
