@@ -138,10 +138,11 @@ exports.getAllBooks = async (req, res) => {
         const page = query.page || 1;
         const skip = (page - 1) * limit;
 
-        const allBooks = await bookModel.find({}, { __v: false })
-                                         .populate('category') // Populate the category field
-                                         .limit(limit)
-                                         .skip(skip);
+        const allBooks = await bookModel
+            .find({}, { __v: false })
+            .populate('category') // Populate the category field
+            .limit(limit)
+            .skip(skip);
 
         res.status(200).json({ status: 'Done', data: { allBooks } });
     } catch (error) {
@@ -221,6 +222,35 @@ exports.updateBook = async (req, res) => {
         const updatedBook = await book.save();
 
         res.status(200).json({ status: 'success', data: updatedBook });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+exports.getCategoriesWithBookCount = async (req, res) => {
+    try {
+        const categoriesWithBookCount = await categoryModel.aggregate([
+            {
+                $lookup: {
+                    from: 'books',
+                    localField: '_id',
+                    foreignField: 'category',
+                    as: 'books',
+                },
+            },
+            {
+                $project: {
+                    categoryName: 1,
+                    booksCount: { $size: '$books' },
+                },
+            },
+        ]);
+
+        if (!categoriesWithBookCount.length) {
+            return res.status(404).json({ status: 'error', message: 'No categories found' });
+        }
+
+        res.status(200).json({ status: 'success', data: categoriesWithBookCount });
     } catch (error) {
         res.status(500).json({ status: 'error', message: error.message });
     }
