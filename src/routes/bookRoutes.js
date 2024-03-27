@@ -9,6 +9,7 @@ const {
     getBookById,
     getCategoryWithBook,
     getRecentBooks,
+    getCategoriesWithBookCount,
 } = require('../controllers/bookControllers');
 const bookRouter = express.Router();
 
@@ -21,6 +22,7 @@ bookRouter.post(
     addBook
 );
 bookRouter.get('/AllBook', getAllBooks);
+bookRouter.get('/AllBooksandcategories', getCategoriesWithBookCount);
 bookRouter.get('/recent', getRecentBooks);
 bookRouter.delete('/:bookId', deleteBook);
 bookRouter.put(
