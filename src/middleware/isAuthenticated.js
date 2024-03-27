@@ -4,6 +4,8 @@ const User = require('../models/userModel');
 const isAuthenticated = async (req, res, next) => {
     // 1-)CHECK IF TOKEN EXIST
     let token;
+    console.log(token);
+    console.log(process.env.JWT_SECRET);
     if (req.headers.authorization) {
         token = req.headers.authorization.split(' ')[1];
     }

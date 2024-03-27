@@ -23,8 +23,7 @@ userRouter.patch(
     validation(updateDataSchema),
     updateUserData
 );
-userRouter.delete('/delete', isAuthenticated, deleteUser);
-
+userRouter.post('/delete', isAuthenticated, deleteUser);
 userRouter.delete('/:id', deleteUserById);
 
 module.exports = userRouter;
