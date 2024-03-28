@@ -87,7 +87,7 @@ exports.webHookFn = async (req, res) => {
         try {
             let cart = await cartModel.findOneAndUpdate(
                 { userId: customer.metadata.userId }, // Find cart by user ID
-                { $set: { paymentStatus: 'paid' } }, // Update payment status to 'paid'
+                { $set: { paymentStatus: 'unpaid' } }, // Update payment status to 'paid'
                 { new: true } // Return the updated cart
             );
             console.log('Payment status updated in cart model:', cart);
