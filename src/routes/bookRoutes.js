@@ -10,8 +10,11 @@ const {
     getCategoryWithBook,
     getRecentBooks,
     getCategoriesWithBookCount,
+    getBook,
+    getProductByKey,
 } = require('../controllers/bookControllers');
 const bookRouter = express.Router();
+bookRouter.get('/search/:key', getProductByKey); // Added route for searching by title
 
 bookRouter.post(
     '/add',
@@ -35,5 +38,6 @@ bookRouter.put(
 );
 bookRouter.get('/search', searchBooksByPrice);
 bookRouter.get('/:bookId', getBookById);
+bookRouter.get('/:id', getBook);
 bookRouter.get('/getAllBookInCategory/:categoryId', getCategoryWithBook);
 module.exports = bookRouter;

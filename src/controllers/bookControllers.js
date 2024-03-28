@@ -130,6 +130,25 @@ exports.getBookById = async (req, res) => {
         res.status(500).json({ status: 'error', message: error.message, data: null });
     }
 };
+exports.getBook = async (req, res) => {
+    try {
+        const bookId = req.params.id;
+
+        // Find the book by its ID
+        const book = await bookModel.findById(bookId);
+
+        // If book is not found, return error
+        if (!book) {
+            return res.status(404).json({ status: 'error', data: { message: 'Book not found' } });
+        }
+
+        // If book is found, return it in the response
+        res.status(200).json({ status: 'Done', data: { book } });
+    } catch (error) {
+        // Return error response if any error occurs
+        res.status(500).json({ status: 'error', message: error.message, data: null });
+    }
+};
 exports.getAllBooks = async (req, res) => {
     try {
         const query = req.query;
@@ -253,5 +272,18 @@ exports.getCategoriesWithBookCount = async (req, res) => {
         res.status(200).json({ status: 'success', data: categoriesWithBookCount });
     } catch (error) {
         res.status(500).json({ status: 'error', message: error.message });
+    }
+
+};
+exports.getProductByKey = async function (req, res) {
+    try {
+        const { key } = req.params;
+        const data = await bookModel.find({ bookTitle: { $regex: key, $options: 'i' } }); // Search by bookTitle using regex (case-insensitive)
+        if (!data.length) {
+            return res.status(404).send("Unable to find");
+        }
+        return res.send(data);
+    } catch (error) {
+        res.status(400).send(error);
     }
 };
