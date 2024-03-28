@@ -274,3 +274,15 @@ exports.getCategoriesWithBookCount = async (req, res) => {
         res.status(500).json({ status: 'error', message: error.message });
     }
 };
+exports.getProductByKey = async function (req, res) {
+    try {
+        const { key } = req.params;
+        const data = await bookModel.find({ bookTitle: { $regex: key, $options: 'i' } }); // Search by bookTitle using regex (case-insensitive)
+        if (!data.length) {
+            return res.status(404).send("Unable to find");
+        }
+        return res.send(data);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+};
