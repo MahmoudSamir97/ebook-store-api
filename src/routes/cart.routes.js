@@ -10,7 +10,6 @@ const isAuthenticated = require('../middleware/isAuthenticated');
 const cartRouter = express.Router();
 
 cartRouter.post('/', isAuthenticated, addToCart);
-
 cartRouter.get('/', isAuthenticated, getUserCart);
 cartRouter.get('/all', getAllCarts);
 

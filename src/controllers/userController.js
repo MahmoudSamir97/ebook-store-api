@@ -25,6 +25,7 @@ exports.updatePassword = async (req, res) => {
 };
 exports.updateUserData = async (req, res) => {
     try {
+        console.log('first');
         const user = await User.findById(req.user._id);
         if (req.file) {
             const dataUrlString = dataurl.format({
@@ -32,6 +33,7 @@ exports.updateUserData = async (req, res) => {
                 mimetype: req.file.mimetype,
             });
             const result = await uploadToCloudinary(dataUrlString, 'Portfolio');
+            console.log(result);
             user.image.url = result.secure_url;
             user.image.public_id = result.public_id;
             await user.save();

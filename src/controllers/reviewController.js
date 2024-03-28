@@ -1,161 +1,43 @@
-const Review = require('../models/reviewModel');
-const Book = require('../models/Book');
+const bookModel = require('../models/Book');
 
-const createReview = async (req, res) => {
-    const { rating, comment, book } = req.body; // Changed 'Book' to 'book'
+exports.createReview = async (req, res) => {
     try {
-        const bookExist = await Book.findById(book); // Changed 'Book' to 'book'
-        if (!bookExist) {
-            return res.status(404).json({
-                success: false,
-                error: `Book with id ${book} not found`, // Changed 'Book' to 'Book'
-            });
-        }
-        const alreadyReviewed = await Review.findOne({ user: req.body.user, book }); // Changed 'Book' to 'book'
-        if (alreadyReviewed) {
-            return res.status(400).json({ msg: 'already reviewed' });
-        }
-        if (!rating || !comment || !book) {
-            // Changed 'Book' to 'book'
-            return res.status(400).json({ msg: 'fill all the credentials' });
-        }
-        const reviewData = {
-            rating,
-
+        const { rating, comment } = req.body;
+        const foundedBook = await bookModel.findById(req.params.id);
+        if (!foundedBook) return res.status(404).json({ message: 'book not found' });
+        const alreadyReviewed = foundedBook.reviews.find((r) => r.user.toString() === req.user._id.toString());
+        if (alreadyReviewed) return res.status(400).json({ message: 'You have already reviewed' });
+        const review = {
+            name: req.user.userName,
+            rating: Number(rating),
             comment,
-            book: req.body.book, // Changed 'Book' to 'book'
-            user: req.body.user,
+            user: req.user._id,
         };
-        const review = await Review.create(reviewData);
-        return res.status(201).json({
-            success: true,
-            review,
-        });
-    } catch (error) {
-        return res.status(400).json({
-            success: false,
-            error: error.message,
-        });
-    }
-};
-// const deleteReview = async (req, res) => {
-//     try {
-//         const { reviewId } = req.params;
-//         const review = await Review.findById(reviewId);
-//         if (!review) {
-//             return res.status(404).json({
-//                 success: false,
-//                 error: Review with id ${reviewId} not found,
-//             });
-//         }
-//         await review.remove(); // Remove the review from the database
-//         return res.status(200).json({
-//             success: true,
-//             message: 'Review deleted successfully',
-//         });
-//     } catch (error) {
-//         return res.status(400).json({
-//             success: false,
-//             error: error.message,
-//         });
-//     }
-// };
-
-const updateReview = async (req, res) => {
-    try {
-        const { reviewId } = req.params;
-        const { rating, title, comment } = req.body;
-        const review = await Review.findById(reviewId);
-        if (!review) {
-            return res.status(404).json({
-                success: false,
-                error: `Review with id ${reviewId} not found`,
-            });
+        foundedBook.reviews.push(review);
+        foundedBook.numReviews = foundedBook.reviews.length;
+        if (foundedBook.reviews && foundedBook.reviews.length > 0) {
+            foundedBook.rating =
+                foundedBook.reviews.reduce((acc, item) => item.rating + acc, 0) / foundedBook.reviews.length;
         }
-        review.rating = rating;
-        review.title = title;
-        review.comment = comment;
-        await review.save();
-        res.status(200).json({ msg: 'Success! Review updated', review });
-    } catch (error) {
-        return res.status(400).json({
-            success: false,
-            error: error.message,
+        await foundedBook.save();
+        res.status(201).json({ message: 'Review added', foundedBook });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
         });
     }
 };
-
-const deleteReview = async (req, res) => {
+exports.getProductReviews = async (req, res) => {
     try {
-        const { reviewId } = req.params;
-
-        const review = await Review.findById(reviewId);
-
-        if (!review) {
-            return res.status(404).json({
-                success: false,
-                error: 'Review not found',
-            });
-        }
-        await review.deleteOne();
-        res.status(200).json({ msg: 'Success! Review removed' });
-    } catch (error) {
-        return res.status(400).json({
-            success: false,
-            error: error.message,
+        const foundedBook = await bookModel.findById(req.params.id);
+        if (!foundedBook) return res.status(404).json({ message: 'Book not founded' });
+        const reviews = foundedBook.reviews;
+        res.status(200).json({ reviews });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            err: err.message,
         });
     }
-};
-
-const getAllReviews = async (req, res) => {
-    try {
-        const reviews = await Review.find({}).populate({
-            path: 'book', // Populate the 'book' field instead of 'product'
-            // select: 'name company price',
-        });
-        return res.status(200).json({ reviews, count: reviews.length });
-    } catch (error) {
-        return res.status(400).json({ error: error.message });
-    }
-};
-
-const getSingleReview = async (req, res) => {
-    try {
-        const { reviewId } = req.params;
-        const review = await Review.findById(reviewId);
-        if (!review) {
-            return res.status(404).json({
-                success: false,
-                error: `Review with id ${reviewId} not found`,
-            });
-        }
-        return res.status(200).json({
-            success: true,
-            review,
-        });
-    } catch (error) {
-        return res.status(400).json({
-            success: false,
-            error: error.message,
-        });
-    }
-};
-
-const getSingleBookReviews = async (req, res) => {
-    const { bookId } = req.params;
-    try {
-        const reviews = await Review.find({ book: bookId }); // Query based on the 'book' field
-        res.status(200).json({ reviews, count: reviews.length });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-};
-
-module.exports = {
-    createReview,
-    updateReview,
-    getAllReviews,
-    getSingleReview,
-    deleteReview,
-    getSingleBookReviews,
 };
