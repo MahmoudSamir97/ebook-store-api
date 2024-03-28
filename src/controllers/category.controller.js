@@ -43,28 +43,18 @@ exports.updateCategory = async (req, res) => {
     try {
         const categoryId = req.params.categoryId;
         const { categoryName } = req.body;
-
         const category = await categoryModel.findById(categoryId);
-
         if (!category) {
             return res.status(404).json({ status: 'ERROR', data: { message: 'Category not found' } });
         }
-
-        let updateFields = { categoryName };
-
         // Check if a new image file is provided
         if (req.file) {
             const result = await uploadToCloudinary(req.file.path);
-            updateFields.categoryImage = result.secure_url;
+            category.categoryImage = result.secure_url;
         }
-
-        const updatedCategory = await categoryModel.findOneAndUpdate(
-            { _id: categoryId },
-            { $set: updateFields },
-            { new: true }
-        );
-
-        res.status(200).json({ status: 'SUCCESS', data: { updatedCategory } });
+        category.categoryName = categoryName;
+        await category.save();
+        res.status(200).json({ status: 'SUCCESS', data: { category } });
     } catch (error) {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
     }
@@ -77,9 +67,7 @@ exports.getAllCategories = async (req, res) => {
         const page = parseInt(query.page) || 1; // Default page is 1
         const skip = (page - 1) * limit;
 
-        const allCategories = await categoryModel.find()
-            .limit(limit)
-            .skip(skip);
+        const allCategories = await categoryModel.find().limit(limit).skip(skip);
 
         const totalCount = await categoryModel.countDocuments(); // Get total count of categories
 
@@ -88,7 +76,6 @@ exports.getAllCategories = async (req, res) => {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
     }
 };
-
 
 exports.searchCategory = async (req, res) => {
     try {
@@ -111,21 +98,14 @@ exports.searchCategory = async (req, res) => {
 exports.deleteCategory = async (req, res) => {
     try {
         const categoryId = req.params.categoryId;
-
         const category = await categoryModel.findById(categoryId);
-
         if (!category) {
             return res.status(404).json({ status: 'ERROR', data: { message: 'Category not found' } });
         }
-
         // Remove the category image from Cloudinary
         const deleteResult = await removeFromCloudinary(category.categoryImage);
-
-        console.log('Cloudinary delete result:', deleteResult);
-
         // Delete the category from the database
-        await categoryModel.findOneAndDelete({ _id: categoryId });
-
+        await categoryModel.findByIdAndDelete(categoryId);
         res.status(200).json({ status: 'SUCCESS', data: null });
     } catch (error) {
         res.status(500).json({ status: 'ERROR', message: error.message, data: null });
