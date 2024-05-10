@@ -1,6 +1,6 @@
-const createToken = require('../utils/createToken');
+const createToken = require('./createToken');
 const verifyTemplate = require('../utils/verifyTemplate');
-const sendeEmail = require('./sendEmail');
+const sendeEmail = require('../services/sendEmail');
 
 const sendVerifyEmail = async (user) => {
     user.isVerfied = false;
